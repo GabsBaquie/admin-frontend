@@ -18,10 +18,16 @@ const Dashboard: React.FC = () => {
             Tableau de Bord Admin
           </Typography>
           <Box mt={3}>
+            <Link href="/users/create" passHref>
+              <Button variant="contained" color="primary" className="mr-4">
+                Créer un Utilisateur
+              </Button>
+            </Link>
             <Link href="/users" passHref>
               <Button variant="contained" color="primary" className="mr-4">
                 Gestion des Utilisateurs
               </Button>
+              x
             </Link>
             {/* Ajoutez d'autres boutons pour différentes sections du back-office */}
             <Button variant="outlined" color="secondary" onClick={logout}>
