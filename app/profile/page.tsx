@@ -1,3 +1,4 @@
+// app/profile/page.tsx
 "use client";
 
 import React, { useContext, useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import { Box, Container, Typography, TextField, Button } from "@mui/material";
 import { AuthContext } from "@/app/context/AuthContext";
 import axiosInstance from "@/app/utils/axiosInstance";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import ChangePassword from "@/app/components/ChangePassword"; // Import du nouveau composant
 
 const Profile: React.FC = () => {
   const { token } = useContext(AuthContext); // Récupérer le token à partir du contexte
@@ -32,7 +34,7 @@ const Profile: React.FC = () => {
     }
   }, [token]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await axiosInstance.put("/auth/me", userData); // API pour mettre à jour le profil
@@ -59,7 +61,9 @@ const Profile: React.FC = () => {
           </Typography>
           {error && <Typography color="error">{error}</Typography>}
           {success && <Typography color="primary">{success}</Typography>}
-          <form className="space-y-4" onSubmit={handleSubmit}>
+
+          {/* Formulaire de mise à jour du profil */}
+          <form className="space-y-4" onSubmit={handleProfileUpdate}>
             <TextField
               label="Nom d'utilisateur"
               name="username"
@@ -79,9 +83,12 @@ const Profile: React.FC = () => {
             />
             <TextField label="Rôle" fullWidth value={userData.role} disabled />
             <Button type="submit" variant="contained" color="primary" fullWidth>
-              Mettre à jour
+              Mettre à jour le profil
             </Button>
           </form>
+
+          {/* Composant de changement de mot de passe */}
+          <ChangePassword />
         </Box>
       </Container>
     </ProtectedRoute>
