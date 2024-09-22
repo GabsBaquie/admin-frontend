@@ -20,7 +20,10 @@ const Login: React.FC = () => {
       // Redirection gérée dans AuthContext après une connexion réussie
     } catch (err) {
       console.error("Login failed:", err);
-      setError("Identifiants invalides");
+      setTimeout(() => {
+        setError("Identifiants invalides");
+        setIsSubmitting(false);
+      }, 500);
     }
   };
 
