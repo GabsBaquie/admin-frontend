@@ -2,7 +2,6 @@
 
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import axiosInstance from "@/app/utils/axiosInstance";
-import { axios } from "@/app/utils/axiosInstance";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
