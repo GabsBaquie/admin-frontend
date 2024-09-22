@@ -1,3 +1,4 @@
+// app/users/create
 "use client";
 
 import ProtectedRoute from "@/app/components/ProtectedRoute";
@@ -31,16 +32,21 @@ const CreateUser: React.FC = () => {
         role,
       });
       router.push("/users");
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response && axiosError.response.status === 403) {
-        setError(
-          "Vous n'avez pas les autorisations nécessaires pour créer un utilisateur."
-        );
-      } else if (error.response.status === 409) {
-        setError("L'utilisateur existe déjà.");
+    } catch (err) {
+      // Cast err as AxiosError and check for response property
+      const axiosError = err as AxiosError;
+      if (axiosError.response) {
+        if (axiosError.response.status === 403) {
+          setError(
+            "Vous n'avez pas les autorisations nécessaires pour créer un utilisateur."
+          );
+        } else if (axiosError.response.status === 409) {
+          setError("L'utilisateur existe déjà.");
+        } else {
+          setError("Erreur lors de la création de l'utilisateur");
+        }
       } else {
-        setError("Erreur lors de la création de l'utilisateur");
+        setError("Une erreur inattendue s'est produite");
       }
       console.error("Create user error:", axiosError);
     }
