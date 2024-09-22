@@ -24,7 +24,7 @@ const Login: React.FC = () => {
       setTimeout(() => {
         setError("Identifiants invalides");
         setIsSubmitting(false);
-      }, 500);
+      }, 5000);
     }
   };
 
