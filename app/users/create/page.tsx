@@ -5,7 +5,7 @@ import axiosInstance from "@/app/utils/axiosInstance";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import axios from "axios";
+import { AxiosError } from "axios"; // Importation nécessaire
 
 const CreateUser: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -32,18 +32,17 @@ const CreateUser: React.FC = () => {
       });
       router.push("/users");
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        if (error.response.status === 403) {
-          setError(
-            "Vous n'avez pas les autorisations nécessaires pour créer un utilisateur."
-          );
-        } else {
-          setError("Erreur lors de la création de l'utilisateur");
-        }
+      const axiosError = error as AxiosError;
+      if (axiosError.response && axiosError.response.status === 403) {
+        setError(
+          "Vous n'avez pas les autorisations nécessaires pour créer un utilisateur."
+        );
+      } else if (error.response.status === 409) {
+        setError("L'utilisateur existe déjà.");
       } else {
         setError("Erreur lors de la création de l'utilisateur");
       }
-      console.error("Create user error:", error);
+      console.error("Create user error:", axiosError);
     }
   };
 
