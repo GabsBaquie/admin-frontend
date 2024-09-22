@@ -41,7 +41,7 @@ const ResetPassword: React.FC = () => {
         error
       );
       setError(
-        error.response?.data?.message ||
+        error.data?.message ||
           "Erreur lors de la réinitialisation du mot de passe."
       );
     } finally {
