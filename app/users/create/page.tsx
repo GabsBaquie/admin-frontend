@@ -2,6 +2,7 @@
 
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import axiosInstance from "@/app/utils/axiosInstance";
+import { axios } from "@/app/utils/axiosInstance";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -16,6 +17,12 @@ const CreateUser: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!email.endsWith("@gmail.com")) {
+      setError("L'adresse e-mail doit être une adresse Gmail.");
+      return;
+    }
+
     try {
       await axiosInstance.post("/admin/users", {
         username,
@@ -47,7 +54,11 @@ const CreateUser: React.FC = () => {
           <Typography variant="h4" gutterBottom>
             Ajouter un Utilisateur
           </Typography>
-          {error && <Typography color="error">{error}</Typography>}
+          {error && (
+            <Typography color="error" my={2}>
+              {error}
+            </Typography>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <TextField
               label="Nom d'utilisateur"

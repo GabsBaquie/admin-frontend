@@ -20,11 +20,12 @@ import axiosInstance from "../../../utils/axiosInstance";
 const EditUser: React.FC = () => {
   const { token } = useContext(AuthContext);
   const router = useRouter();
-  const { id } = useParams(); // Utilisation de useParams au lieu de useSearchParams
+  const { id } = useParams(); // Récupération de l'ID depuis les paramètres d'URL
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null); // Ajout d'un état pour le succès
 
   const fetchUser = useCallback(async () => {
     try {
@@ -46,9 +47,14 @@ const EditUser: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); // Réinitialiser l'erreur avant une nouvelle tentative
+    setSuccess(null); // Réinitialiser le succès avant une nouvelle tentative
     try {
       await axiosInstance.put(`/admin/users/${id}`, { username, email, role });
-      router.push("/users");
+      setSuccess("Utilisateur mis à jour avec succès !");
+      setTimeout(() => {
+        router.push("/users");
+      }, 2000); // Redirection après 2 secondes pour laisser le temps d'afficher le message de succès
     } catch (error) {
       console.error("Update user error:", error);
       setError("Erreur lors de la mise à jour de l'utilisateur");
@@ -62,7 +68,17 @@ const EditUser: React.FC = () => {
           <Typography variant="h4" gutterBottom>
             Modifier l&#39;Utilisateur
           </Typography>
-          {error && <Typography color="error">{error}</Typography>}
+          {error && (
+            <Typography color="error" my={2}>
+              {error}
+            </Typography>
+          )}
+          {success && (
+            <Typography color="primary" my={2}>
+              {success}
+            </Typography>
+          )}
+          {/* Affichage du succès */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <TextField
               label="Nom d'utilisateur"
