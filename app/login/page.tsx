@@ -11,6 +11,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +55,7 @@ const Login: React.FC = () => {
             autoComplete="current-password"
           />
           <Button type="submit" variant="contained" color="primary" fullWidth>
-            Se connecter
+            {isSubmitting ? "Connexion..." : "Se connecter"}
           </Button>
           <Link href="/reset-request">
             <Button>Mot de passe oublié ?</Button>
