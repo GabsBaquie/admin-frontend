@@ -15,16 +15,16 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted with:", { email, password });
+    setIsSubmitting(true); // Désactive le bouton pendant l'envoi
+
     try {
       await login(email, password);
       // Redirection gérée dans AuthContext après une connexion réussie
-    } catch (err) {
-      console.error("Login failed:", err);
-      setTimeout(() => {
-        setError("Identifiants invalides");
-        setIsSubmitting(false);
-      }, 5000);
+    } catch (error) {
+      console.error("Login failed:", error);
+      setError("Identifiants invalides");
+    } finally {
+      setIsSubmitting(false); // Réactive le bouton après la tentative de connexion, qu'elle réussisse ou non
     }
   };
 
@@ -34,14 +34,21 @@ const Login: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           Connexion Admin
         </Typography>
-        {error && <Typography color="error">{error}</Typography>}
+        {error && (
+          <Typography color="error" my={2}>
+            {error}
+          </Typography>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <TextField
             label="Email"
             type="email"
             fullWidth
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError(null); // Réinitialise l'erreur dès que l'utilisateur modifie l'email
+            }}
             required
             autoComplete="email"
           />
@@ -50,11 +57,20 @@ const Login: React.FC = () => {
             type="password"
             fullWidth
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError(null); // Réinitialise l'erreur dès que l'utilisateur modifie le mot de passe
+            }}
             required
             autoComplete="current-password"
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={isSubmitting} // Désactive le bouton pendant l'envoi
+          >
             {isSubmitting ? "Connexion..." : "Se connecter"}
           </Button>
           <Link href="/reset-request">
