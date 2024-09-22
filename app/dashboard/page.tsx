@@ -3,13 +3,9 @@
 
 import { Box, Button, Container, Typography } from "@mui/material";
 import Link from "next/link";
-import React, { useContext } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
-import { AuthContext } from "../context/AuthContext";
 
 const Dashboard: React.FC = () => {
-  const { logout } = useContext(AuthContext);
-
   return (
     <ProtectedRoute>
       <Container maxWidth="md">
@@ -18,8 +14,8 @@ const Dashboard: React.FC = () => {
             Tableau de Bord Admin
           </Typography>
           <Box mt={3}>
-            <Link href="/users/create" passHref>
-              <Button variant="contained" color="primary" className="mr-4">
+            <Link href="/users/create" passHref className="mx-4">
+              <Button variant="contained" color="primary">
                 Créer un Utilisateur
               </Button>
             </Link>
@@ -27,12 +23,7 @@ const Dashboard: React.FC = () => {
               <Button variant="contained" color="primary" className="mr-4">
                 Gestion des Utilisateurs
               </Button>
-              x
             </Link>
-            {/* Ajoutez d'autres boutons pour différentes sections du back-office */}
-            <Button variant="outlined" color="secondary" onClick={logout}>
-              Se Déconnecter
-            </Button>
           </Box>
         </Box>
       </Container>

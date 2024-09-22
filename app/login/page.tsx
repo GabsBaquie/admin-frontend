@@ -1,9 +1,9 @@
 // app/login/page.tsx
 "use client";
 
+import { AuthContext } from "@/app/context/AuthContext";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
 
 const Login: React.FC = () => {
   const { login } = useContext(AuthContext);
@@ -13,10 +13,12 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submitted with:", { email, password });
     try {
       await login(email, password);
+      // Redirection gérée dans AuthContext après une connexion réussie
     } catch (err) {
-      console.error("Login error:", err);
+      console.error("Login failed:", err);
       setError("Identifiants invalides");
     }
   };
@@ -24,18 +26,10 @@ const Login: React.FC = () => {
   return (
     <Container maxWidth="sm">
       <Box mt={10} className="bg-white p-8 rounded shadow">
-        <Typography
-          variant="h4"
-          component="h1"
-          gutterBottom
-          className="text-center">
+        <Typography variant="h4" gutterBottom>
           Connexion Admin
         </Typography>
-        {error && (
-          <Typography color="error" className="text-center">
-            {error}
-          </Typography>
-        )}
+        {error && <Typography color="error">{error}</Typography>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <TextField
             label="Email"
@@ -44,6 +38,7 @@ const Login: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
           />
           <TextField
             label="Mot de passe"
@@ -52,6 +47,7 @@ const Login: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="current-password"
           />
           <Button type="submit" variant="contained" color="primary" fullWidth>
             Se connecter

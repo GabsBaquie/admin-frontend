@@ -1,6 +1,16 @@
 "use client";
 
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import ProtectedRoute from "../../../components/ProtectedRoute";
@@ -22,8 +32,8 @@ const EditUser: React.FC = () => {
       setUsername(response.data.username);
       setEmail(response.data.email);
       setRole(response.data.role);
-    } catch (err) {
-      console.error("Fetch user error:", err);
+    } catch (error) {
+      console.error("Fetch user error:", error);
       setError("Erreur lors de la récupération des données de l'utilisateur");
     }
   }, [id]);
@@ -46,7 +56,7 @@ const EditUser: React.FC = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["admin"]}>
       <Container maxWidth="sm">
         <Box mt={5} className="bg-white p-8 rounded shadow">
           <Typography variant="h4" gutterBottom>
@@ -69,13 +79,16 @@ const EditUser: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <TextField
-              label="Rôle"
-              fullWidth
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-            />
+            <FormControl fullWidth required>
+              <InputLabel>Rôle</InputLabel>
+              <Select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                label="Rôle">
+                <MenuItem value="user">User</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+              </Select>
+            </FormControl>
             <Button type="submit" variant="contained" color="primary" fullWidth>
               Mettre à Jour
             </Button>

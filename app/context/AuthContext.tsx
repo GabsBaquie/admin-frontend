@@ -41,7 +41,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         password,
       });
       console.log("Login successful:", response.data);
+
+      // Stocke le token et le rôle dans le localStorage
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.user.role); // Stocke le rôle
+
       setToken(response.data.token);
       router.push("/dashboard");
     } catch (err) {

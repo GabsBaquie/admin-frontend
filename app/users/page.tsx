@@ -33,6 +33,8 @@ const Users: React.FC = () => {
   const { token } = useContext(AuthContext);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,17 +60,16 @@ const Users: React.FC = () => {
     try {
       await axiosInstance.delete(`/admin/users/${id}`);
       setUsers(users.filter((user) => user.id !== id));
-    } catch (err) {
-      console.error("Login error:", err);
+    } catch (error) {
+      console.error("Login error:", error);
       setError("Erreur lors de la suppression de l'utilisateur");
     }
   };
 
   if (loading) return <Typography>Chargement...</Typography>;
-  if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["admin"]}>
       <Container maxWidth="lg">
         <Box mt={5}>
           <Typography variant="h4" gutterBottom>
@@ -104,12 +105,11 @@ const Users: React.FC = () => {
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Link href={`/users/edit/${user.id}`} passHref>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          size="small"
-                          className="mr-2">
+                      <Link
+                        href={`/users/edit/${user.id}`}
+                        passHref
+                        className="mr-2">
+                        <Button variant="outlined" color="primary" size="small">
                           Éditer
                         </Button>
                       </Link>

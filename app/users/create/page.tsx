@@ -25,13 +25,23 @@ const CreateUser: React.FC = () => {
       });
       router.push("/users");
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.status === 403) {
+          setError(
+            "Vous n'avez pas les autorisations nécessaires pour créer un utilisateur."
+          );
+        } else {
+          setError("Erreur lors de la création de l'utilisateur");
+        }
+      } else {
+        setError("Erreur lors de la création de l'utilisateur");
+      }
       console.error("Create user error:", error);
-      setError("Erreur lors de la création de l'utilisateur");
     }
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["admin"]}>
       <Container maxWidth="sm">
         <Box mt={5} className="bg-white p-8 rounded shadow">
           <Typography variant="h4" gutterBottom>
