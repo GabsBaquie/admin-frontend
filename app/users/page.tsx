@@ -43,11 +43,16 @@ const Users: React.FC = () => {
         setUsers(data);
         setLoading(false);
       } catch (err) {
-        console.error("Erreur lors de la récupération des utilisateurs:", err);
-        setError(
-          err.message || "Erreur lors de la récupération des utilisateurs"
-        );
-        setLoading(false);
+        if (err instanceof Error) {
+          console.error(
+            "Erreur lors de la récupération des utilisateurs:",
+            err
+          );
+          setError(
+            err.message || "Erreur lors de la récupération des utilisateurs"
+          );
+          setLoading(false);
+        }
       }
     };
 
@@ -63,8 +68,12 @@ const Users: React.FC = () => {
       });
       setUsers(users.filter((user) => user.id !== id));
     } catch (err) {
-      console.error("Erreur lors de la suppression de l'utilisateur:", err);
-      setError(err.message || "Erreur lors de la suppression de l'utilisateur");
+      if (err instanceof Error) {
+        console.error("Erreur lors de la suppression de l'utilisateur:", err);
+        setError(
+          err.message || "Erreur lors de la suppression de l'utilisateur"
+        );
+      }
     }
   };
 

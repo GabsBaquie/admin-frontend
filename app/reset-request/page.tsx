@@ -1,4 +1,5 @@
 // app/auth/reset-request/page.tsx
+// app/reset-request/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -21,11 +22,13 @@ const ResetRequest: React.FC = () => {
       setSuccessMessage("Un email de réinitialisation a été envoyé !");
       setErrorMessage(null);
     } catch (err) {
-      console.error("Erreur lors de l'envoi de la demande :", err);
-      setErrorMessage(
-        err.message || "Erreur lors de la demande. Vérifiez votre email."
-      );
-      setSuccessMessage(null);
+      if (err instanceof Error) {
+        console.error("Erreur lors de l'envoi de la demande :", err);
+        setErrorMessage(
+          err.message || "Erreur lors de la demande. Vérifiez votre email."
+        );
+        setSuccessMessage(null);
+      }
     }
   };
 

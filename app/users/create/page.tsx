@@ -30,8 +30,10 @@ const CreateUser: React.FC = () => {
       });
       router.push("/users");
     } catch (err) {
-      setError(err.message || "Une erreur inattendue s'est produite.");
-      console.error("Create user error:", err);
+      if (err instanceof Error) {
+        setError(err.message || "Une erreur inattendue s'est produite.");
+        console.error("Create user error:", err);
+      }
     }
   };
 

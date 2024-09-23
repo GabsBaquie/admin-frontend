@@ -1,5 +1,4 @@
 // app/context/AuthContext.tsx
-"use client";
 
 import { useRouter } from "next/navigation";
 import React, {
@@ -10,6 +9,7 @@ import React, {
   useCallback,
 } from "react";
 import { jwtDecode } from "jwt-decode";
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 interface AuthContextProps {
   token: string | null;
@@ -19,6 +19,13 @@ interface AuthContextProps {
 
 interface DecodedToken {
   exp: number;
+}
+
+interface LoginResponse {
+  token: string;
+  user: {
+    role: string;
+  };
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -64,32 +71,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = useCallback(
     async (email: string, password: string) => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"}/auth/login`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, password }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Erreur lors de la connexion.");
-        }
+        const response = await fetchWithAuth<LoginResponse>("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ email, password }),
+        });
 
         // Stocke le token et le rôle dans le localStorage
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.user.role);
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("role", response.user.role);
 
-        setToken(data.token); // Met à jour l'état avec le nouveau token
+        setToken(response.token); // Met à jour l'état avec le nouveau token
         router.push("/dashboard"); // Redirige vers le dashboard après connexion réussie
       } catch (err) {
         console.error("Login error:", err);
-        throw new Error(err.message || "Identifiants invalides");
+        if (err instanceof Error) {
+          throw new Error(err.message || "Identifiants invalides");
+        } else {
+          throw new Error("Une erreur inconnue s'est produite.");
+        }
       }
     },
     [router]

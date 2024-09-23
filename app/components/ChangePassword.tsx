@@ -35,7 +35,13 @@ const ChangePassword: React.FC = () => {
       setConfirmNewPassword("");
       setError(null);
     } catch (err) {
-      setError(err.message || "Erreur lors du changement de mot de passe");
+      // Type Guard pour vérifier si err est une instance de Error
+      if (err instanceof Error) {
+        setError(err.message || "Erreur lors du changement de mot de passe");
+      } else {
+        // Cas où err n'est pas une instance de Error
+        setError("Une erreur inconnue s'est produite.");
+      }
       setSuccess(null);
       console.error("Erreur lors du changement de mot de passe :", err);
     }

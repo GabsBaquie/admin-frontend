@@ -16,7 +16,7 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import ProtectedRoute from "../../../components/ProtectedRoute";
-import { fetchWithAuth } from "../../../utils/fetchWithAuth";
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 interface User {
   id: number;
@@ -51,12 +51,14 @@ const EditUser: React.FC = () => {
       setRole(data.role);
       setLoading(false);
     } catch (err) {
-      console.error("Fetch user error:", err);
-      setError(
-        err.message ||
-          "Erreur lors de la récupération des données de l'utilisateur"
-      );
-      setLoading(false);
+      if (err instanceof Error) {
+        console.error("Fetch user error:", err);
+        setError(
+          err.message ||
+            "Erreur lors de la récupération des données de l'utilisateur"
+        );
+        setLoading(false);
+      }
     }
   }, [id]);
 
@@ -80,8 +82,12 @@ const EditUser: React.FC = () => {
         router.push("/users");
       }, 2000); // Redirection après 2 secondes pour laisser le temps d'afficher le message de succès
     } catch (err) {
-      console.error("Update user error:", err);
-      setError(err.message || "Erreur lors de la mise à jour de l'utilisateur");
+      if (err instanceof Error) {
+        console.error("Update user error:", err);
+        setError(
+          err.message || "Erreur lors de la mise à jour de l'utilisateur"
+        );
+      }
     }
   };
 

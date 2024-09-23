@@ -25,7 +25,7 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const data = await fetchWithAuth("/auth/me", {
+        const data: UserData = await fetchWithAuth<UserData>("/auth/me", {
           method: "GET",
         });
         setUserData(data);
@@ -41,7 +41,7 @@ const Profile: React.FC = () => {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const data = await fetchWithAuth("/auth/me", {
+      const data: UserData = await fetchWithAuth<UserData>("/auth/me", {
         method: "PUT",
         body: JSON.stringify(userData),
       });
@@ -50,9 +50,11 @@ const Profile: React.FC = () => {
       setUserData(data);
       setError(null);
     } catch (err) {
-      console.error("Erreur lors de la mise à jour du profil :", err);
-      setError("Erreur lors de la mise à jour du profil");
-      setSuccess(null);
+      if (err instanceof Error) {
+        console.error("Erreur lors de la mise à jour du profil :", err);
+        setError("Erreur lors de la mise à jour du profil");
+        setSuccess(null);
+      }
     }
   };
 

@@ -1,9 +1,9 @@
 // app/utils/fetchWithAuth.ts
 
-export const fetchWithAuth = async (
+export const fetchWithAuth = async <T>(
   endpoint: string,
   options: RequestInit = {}
-): Promise => {
+): Promise<T> => {
   // Récupérer la base URL de l'API depuis les variables d'environnement
   const baseURL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
@@ -52,12 +52,12 @@ export const fetchWithAuth = async (
 
     // Si la réponse est 204 No Content, ne pas tenter de parser le JSON
     if (response.status === 204) {
-      return null;
+      return null as unknown as T;
     }
 
     // Parser la réponse JSON
     const data = await response.json();
-    return data;
+    return data as T;
   } catch (error) {
     console.error("FetchWithAuth error:", error);
     throw error;
