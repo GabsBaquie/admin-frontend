@@ -1,9 +1,9 @@
-// app/reset-request/page.tsx
+// app/auth/reset-request/page.tsx
 "use client";
 
 import React, { useState } from "react";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import axiosInstance from "@/app/utils/axiosInstance";
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 const ResetRequest: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -13,12 +13,18 @@ const ResetRequest: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axiosInstance.post("/auth/reset-password-request", { email });
+      await fetchWithAuth("/auth/reset-password-request", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+
       setSuccessMessage("Un email de réinitialisation a été envoyé !");
       setErrorMessage(null);
     } catch (err) {
       console.error("Erreur lors de l'envoi de la demande :", err);
-      setErrorMessage("Erreur lors de la demande. Vérifiez votre email.");
+      setErrorMessage(
+        err.message || "Erreur lors de la demande. Vérifiez votre email."
+      );
       setSuccessMessage(null);
     }
   };

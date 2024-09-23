@@ -1,12 +1,11 @@
-// app/users/create
+// app/users/create/page.tsx
 "use client";
 
 import ProtectedRoute from "@/app/components/ProtectedRoute";
-import axiosInstance from "@/app/utils/axiosInstance";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { AxiosError } from "axios"; // Importation nécessaire
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 const CreateUser: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -25,30 +24,14 @@ const CreateUser: React.FC = () => {
     }
 
     try {
-      await axiosInstance.post("/admin/users", {
-        username,
-        email,
-        password,
-        role,
+      await fetchWithAuth("/admin/users", {
+        method: "POST",
+        body: JSON.stringify({ username, email, password, role }),
       });
       router.push("/users");
     } catch (err) {
-      // Cast err as AxiosError and check for response property
-      const axiosError = err as AxiosError;
-      if (axiosError.response) {
-        if (axiosError.response.status === 403) {
-          setError(
-            "Vous n'avez pas les autorisations nécessaires pour créer un utilisateur."
-          );
-        } else if (axiosError.response.status === 409) {
-          setError("L'utilisateur existe déjà.");
-        } else {
-          setError("Erreur lors de la création de l'utilisateur");
-        }
-      } else {
-        setError("Une erreur inattendue s'est produite");
-      }
-      console.error("Create user error:", axiosError);
+      setError(err.message || "Une erreur inattendue s'est produite.");
+      console.error("Create user error:", err);
     }
   };
 

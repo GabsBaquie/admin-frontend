@@ -1,16 +1,20 @@
 // app/profile/page.tsx
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Container, Typography, TextField, Button } from "@mui/material";
-import { AuthContext } from "@/app/context/AuthContext";
-import axiosInstance from "@/app/utils/axiosInstance";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
-import ChangePassword from "@/app/components/ChangePassword"; // Import du nouveau composant
+import ChangePassword from "@/app/components/ChangePassword";
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
+
+interface UserData {
+  username: string;
+  email: string;
+  role: string;
+}
 
 const Profile: React.FC = () => {
-  const { token } = useContext(AuthContext); // Récupérer le token à partir du contexte
-  const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState<UserData>({
     username: "",
     email: "",
     role: "",
@@ -21,25 +25,29 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axiosInstance.get("/auth/me"); // API pour obtenir les données du profil
-        setUserData(response.data);
+        const data = await fetchWithAuth("/auth/me", {
+          method: "GET",
+        });
+        setUserData(data);
       } catch (err) {
         console.error("Erreur lors de la récupération du profil :", err);
         setError("Erreur lors de la récupération du profil");
       }
     };
 
-    if (token) {
-      fetchProfile();
-    }
-  }, [token]);
+    fetchProfile();
+  }, []); // Aucun besoin de dépendance car fetchWithAuth gère le token
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.put("/auth/me", userData); // API pour mettre à jour le profil
+      const data = await fetchWithAuth("/auth/me", {
+        method: "PUT",
+        body: JSON.stringify(userData),
+      });
+
       setSuccess("Profil mis à jour avec succès");
-      setUserData(response.data);
+      setUserData(data);
       setError(null);
     } catch (err) {
       console.error("Erreur lors de la mise à jour du profil :", err);
@@ -53,7 +61,9 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["admin", "user"]}>
+      {" "}
+      {/* Ajustez les rôles selon vos besoins */}
       <Container maxWidth="sm">
         <Box mt={5} className="bg-white p-8 rounded shadow">
           <Typography variant="h4" gutterBottom>

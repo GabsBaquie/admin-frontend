@@ -1,9 +1,8 @@
 // app/users/page.tsx
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
-import axiosInstance from "../utils/axiosInstance";
+import React, { useEffect, useState } from "react";
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 import {
   Box,
@@ -17,6 +16,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -30,43 +30,53 @@ interface User {
 }
 
 const Users: React.FC = () => {
-  const { token } = useContext(AuthContext);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (token) {
-      fetchUsers();
-    }
-  }, [token]);
+    const fetchUsers = async () => {
+      try {
+        const data: User[] = await fetchWithAuth("/admin/users", {
+          method: "GET",
+        });
+        setUsers(data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des utilisateurs:", err);
+        setError(
+          err.message || "Erreur lors de la récupération des utilisateurs"
+        );
+        setLoading(false);
+      }
+    };
 
-  const fetchUsers = async () => {
-    try {
-      const response = await axiosInstance.get("/admin/users");
-      setUsers(response.data);
-      setLoading(false);
-    } catch {
-      setError("Erreur lors de la récupération des utilisateurs");
-      setLoading(false);
-    }
-  };
+    fetchUsers();
+  }, []); // Aucun besoin de dépendance car fetchWithAuth gère le token
 
   const deleteUser = async (id: number) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?"))
       return;
     try {
-      await axiosInstance.delete(`/admin/users/${id}`);
+      await fetchWithAuth(`/admin/users/${id}`, {
+        method: "DELETE",
+      });
       setUsers(users.filter((user) => user.id !== id));
-    } catch (error) {
-      console.error("Login error:", error);
-      setError("Erreur lors de la suppression de l'utilisateur");
+    } catch (err) {
+      console.error("Erreur lors de la suppression de l'utilisateur:", err);
+      setError(err.message || "Erreur lors de la suppression de l'utilisateur");
     }
   };
 
-  if (loading) return <Typography>Chargement...</Typography>;
+  if (loading)
+    return (
+      <Container maxWidth="lg">
+        <Box mt={5} textAlign="center">
+          <CircularProgress />
+          <Typography>Chargement...</Typography>
+        </Box>
+      </Container>
+    );
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
@@ -82,6 +92,11 @@ const Users: React.FC = () => {
               </Button>
             </Link>
           </Box>
+          {error && (
+            <Box mb={2}>
+              <Typography color="error">{error}</Typography>
+            </Box>
+          )}
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -105,11 +120,12 @@ const Users: React.FC = () => {
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Link
-                        href={`/users/edit/${user.id}`}
-                        passHref
-                        className="mr-2">
-                        <Button variant="outlined" color="primary" size="small">
+                      <Link href={`/users/edit/${user.id}`} passHref>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          size="small"
+                          className="mr-2">
                           Éditer
                         </Button>
                       </Link>

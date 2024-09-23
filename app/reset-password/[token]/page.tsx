@@ -1,20 +1,23 @@
 // app/reset-password/[token]/page.tsx
-// app/reset-password/[token]/page.tsx
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter, useParams } from "next/navigation";
 
+interface ResetPasswordResponse {
+  message?: string;
+}
+
 const ResetPassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // Champ de confirmation de mot de passe
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const params = useParams();
-  const token = params.token;
+  const token = params.token as string | undefined;
 
   // Vérifiez si le token existe
   if (!token) {
@@ -23,6 +26,10 @@ const ResetPassword: React.FC = () => {
         <Box mt={10} className="bg-white p-8 rounded shadow">
           <Typography variant="h4" gutterBottom>
             Jeton de réinitialisation manquant.
+          </Typography>
+          <Typography variant="body1">
+            Veuillez vérifier le lien de réinitialisation envoyé à votre adresse
+            e-mail.
           </Typography>
         </Box>
       </Container>
@@ -45,7 +52,7 @@ const ResetPassword: React.FC = () => {
     try {
       // Effectuer la requête de réinitialisation du mot de passe avec fetch
       const response = await fetch(
-        "https://nation-sounds-backend.up.railway.app/api/auth/reset-password",
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"}/auth/reset-password`,
         {
           method: "PUT",
           headers: {
@@ -55,7 +62,7 @@ const ResetPassword: React.FC = () => {
         }
       );
 
-      const data = await response.json();
+      const data: ResetPasswordResponse = await response.json();
 
       if (!response.ok) {
         // Si la réponse n'est pas ok, lancez une erreur avec le message du serveur

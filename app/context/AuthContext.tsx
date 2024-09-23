@@ -9,7 +9,7 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import jwtDecode from "jwt-decode"; // Importation correcte
+import { jwtDecode } from "jwt-decode";
 
 interface AuthContextProps {
   token: string | null;
@@ -64,9 +64,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = useCallback(
     async (email: string, password: string) => {
       try {
-        // Effectuer la requête de login avec fetch
         const response = await fetch(
-          "https://nation-sounds-backend.up.railway.app/api/auth/login",
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"}/auth/login`,
           {
             method: "POST",
             headers: {
@@ -79,7 +78,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         const data = await response.json();
 
         if (!response.ok) {
-          // Si la réponse n'est pas ok, lancez une erreur avec le message du serveur
           throw new Error(data.message || "Erreur lors de la connexion.");
         }
 
@@ -91,7 +89,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         router.push("/dashboard"); // Redirige vers le dashboard après connexion réussie
       } catch (err) {
         console.error("Login error:", err);
-        throw new Error("Identifiants invalides");
+        throw new Error(err.message || "Identifiants invalides");
       }
     },
     [router]

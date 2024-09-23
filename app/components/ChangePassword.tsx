@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import axiosInstance from "@/app/utils/axiosInstance";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 const ChangePassword: React.FC = () => {
   const [oldPassword, setOldPassword] = useState("");
@@ -21,19 +21,23 @@ const ChangePassword: React.FC = () => {
     }
 
     try {
-      await axiosInstance.put("/auth/change-password", {
-        oldPassword,
-        newPassword,
+      await fetchWithAuth("/auth/change-password", {
+        method: "PUT",
+        body: JSON.stringify({
+          oldPassword,
+          newPassword,
+        }),
       });
+
       setSuccess("Mot de passe changé avec succès");
       setOldPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
       setError(null);
     } catch (err) {
-      console.error("Erreur lors du changement de mot de passe :", err);
-      setError("Erreur lors du changement de mot de passe");
+      setError(err.message || "Erreur lors du changement de mot de passe");
       setSuccess(null);
+      console.error("Erreur lors du changement de mot de passe :", err);
     }
   };
 
