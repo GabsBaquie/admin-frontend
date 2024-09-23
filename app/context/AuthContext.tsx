@@ -1,7 +1,6 @@
 // app/context/AuthContext.tsx
 "use client";
 
-import axiosInstance from "@/app/utils/axiosInstance";
 import { useRouter } from "next/navigation";
 import React, {
   createContext,
@@ -10,12 +9,16 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode"; // Importation correcte
 
 interface AuthContextProps {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+}
+
+interface DecodedToken {
+  exp: number;
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -34,7 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   // Fonction pour vérifier si le token est expiré
   const checkTokenValidity = (token: string): boolean => {
     try {
-      const decodedToken = jwtDecode<{ exp: number }>(token);
+      const decodedToken = jwtDecode<DecodedToken>(token);
       const currentTime = Date.now() / 1000; // Convertir en secondes
       return decodedToken.exp > currentTime; // Retourne true si le token est valide
     } catch (error) {
@@ -61,17 +64,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = useCallback(
     async (email: string, password: string) => {
       try {
-        const response = await axiosInstance.post("/auth/login", {
-          email,
-          password,
-        });
-        // console.log("Login successful:", response.data);
+        // Effectuer la requête de login avec fetch
+        const response = await fetch(
+          "https://nation-sounds-backend.up.railway.app/api/auth/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Si la réponse n'est pas ok, lancez une erreur avec le message du serveur
+          throw new Error(data.message || "Erreur lors de la connexion.");
+        }
 
         // Stocke le token et le rôle dans le localStorage
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", response.data.user.role);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.user.role);
 
-        setToken(response.data.token); // Met à jour l'état avec le nouveau token
+        setToken(data.token); // Met à jour l'état avec le nouveau token
         router.push("/dashboard"); // Redirige vers le dashboard après connexion réussie
       } catch (err) {
         console.error("Login error:", err);

@@ -1,14 +1,14 @@
 // app/reset-password/[token]/page.tsx
+// app/reset-password/[token]/page.tsx
 "use client";
 
 import { useState } from "react";
-import axiosInstance from "@/app/utils/axiosInstance";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import { useRouter, useParams } from "next/navigation"; // Utiliser next/navigation
+import { useRouter, useParams } from "next/navigation";
 
 const ResetPassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // Champ de confirmation de mot de passe
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,12 +16,26 @@ const ResetPassword: React.FC = () => {
   const params = useParams();
   const token = params.token;
 
+  // Vérifiez si le token existe
+  if (!token) {
+    return (
+      <Container maxWidth="sm">
+        <Box mt={10} className="bg-white p-8 rounded shadow">
+          <Typography variant="h4" gutterBottom>
+            Jeton de réinitialisation manquant.
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     setMessage(null);
 
+    // Vérifiez que les mots de passe correspondent
     if (newPassword !== confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
       setIsSubmitting(false);
@@ -29,21 +43,43 @@ const ResetPassword: React.FC = () => {
     }
 
     try {
-      await axiosInstance.put("/auth/reset-password", { token, newPassword });
+      // Effectuer la requête de réinitialisation du mot de passe avec fetch
+      const response = await fetch(
+        "https://nation-sounds-backend.up.railway.app/api/auth/reset-password",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token, newPassword }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Si la réponse n'est pas ok, lancez une erreur avec le message du serveur
+        throw new Error(
+          data.message || "Erreur lors de la réinitialisation du mot de passe."
+        );
+      }
+
       setMessage("Mot de passe réinitialisé avec succès !");
+
       // Rediriger vers la page de connexion après un délai
       setTimeout(() => {
         router.push("/login");
       }, 3000);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         "Erreur lors de la réinitialisation du mot de passe:",
         error
       );
-      setError(
-        error.data?.message ||
-          "Erreur lors de la réinitialisation du mot de passe."
-      );
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Erreur lors de la réinitialisation du mot de passe.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -51,7 +87,7 @@ const ResetPassword: React.FC = () => {
 
   return (
     <Container maxWidth="sm">
-      <Box mt={5} className="bg-white p-8 rounded shadow">
+      <Box mt={10} className="bg-white p-8 rounded shadow">
         <Typography variant="h4" gutterBottom>
           Réinitialiser votre mot de passe
         </Typography>
