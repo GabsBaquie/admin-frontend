@@ -1,3 +1,6 @@
+// app/components/FormModal.tsx
+
+import React from "react";
 import {
   Box,
   Button,
@@ -6,66 +9,84 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  MenuItem,
 } from "@mui/material";
-import React, { useState } from "react";
 import { Field } from "@/app/types/content";
 
-// Définition des props du composant avec types génériques
 interface FormModalProps<T> {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: Partial<T>) => void;
-  initialData: T | undefined;
+  initialData?: Partial<T>;
   title: string;
-  fields: Field<T>[]; // Utilisation du type générique pour les champs du formulaire
+  fields: Field<T>[];
 }
 
-const FormModal = <T extends object>({
+const FormModal = <T extends { id: number }>({
   open,
   onClose,
   onSubmit,
-  initialData,
+  initialData = {},
   title,
   fields,
 }: FormModalProps<T>) => {
-  // Gestion de l'état pour chaque champ du formulaire
-  const [formData, setFormData] = useState<Partial<T>>(initialData || {});
+  const [formData, setFormData] = React.useState<Partial<T>>(initialData);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const handleChange = (field: keyof T, value: unknown) => {
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [field]: value,
     }));
   };
 
   const handleSubmit = () => {
     onSubmit(formData);
-    onClose(); // Ferme la modal après soumission
+    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        {fields.map((field) => (
-          <Box key={field.name as string} my={2}>
-            <TextField
-              label={field.label}
-              name={field.name as string}
-              fullWidth
-              type={field.type || "text"}
-              required={field.required}
-              value={formData[field.name as keyof T] || ""}
-              onChange={handleChange}
-            />
-          </Box>
-        ))}
+        <Box component="form" noValidate autoComplete="off">
+          {fields.map((field) => (
+            <Box key={field.name} mb={2}>
+              {field.type === "select" ? (
+                <TextField
+                  select
+                  fullWidth
+                  label={field.label}
+                  value={formData[field.name] || ""}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
+                  required={field.required}>
+                  {field.options?.map(
+                    (option: { value: string | number; label: string }) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    )
+                  )}
+                </TextField>
+              ) : (
+                <TextField
+                  fullWidth
+                  label={field.label}
+                  type={field.type}
+                  value={formData[field.name] || ""}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
+                  required={field.required}
+                />
+              )}
+            </Box>
+          ))}
+        </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Annuler</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          Sauvegarder
+        <Button onClick={onClose} color="secondary">
+          Annuler
+        </Button>
+        <Button onClick={handleSubmit} color="primary">
+          Enregistrer
         </Button>
       </DialogActions>
     </Dialog>

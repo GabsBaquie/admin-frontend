@@ -1,3 +1,4 @@
+// app/components/ProtectedRoute.tsx
 "use client";
 
 import { AuthContext } from "@/app/context/AuthContext";
@@ -26,7 +27,9 @@ const ProtectedRoute: React.FC<{
       setError(
         "Vous n'avez pas les autorisations nécessaires pour accéder à cette page."
       );
-      console.log("ProtectedRoute - Insufficient role, redirecting to /login");
+      console.log(
+        "ProtectedRoute - Insufficient role, redirecting to /dashboard"
+      );
       setTimeout(() => router.push("/dashboard"), 5000); // Redirection après un délai
     } else {
       console.log("ProtectedRoute - Access granted");

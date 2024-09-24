@@ -1,4 +1,4 @@
-//  app/types/Program.ts
+// app/types/Program.ts
 
 import { Day } from "./Day";
 

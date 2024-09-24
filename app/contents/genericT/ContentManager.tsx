@@ -1,3 +1,5 @@
+// app/components/genericT/ContentManager.tsx
+
 import DataTable from "@/app/components/DataTable";
 import DeleteConfirmation from "@/app/components/DeleteConfirmation";
 import FormModal from "@/app/components/FormModal";
@@ -6,7 +8,7 @@ import { Column, Field } from "@/app/types/content";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useState } from "react";
+import { useState } from "react";
 
 // Interface pour le ContentManager avec types génériques
 interface ContentManagerProps<T> {
@@ -32,24 +34,24 @@ const ContentManager = <T extends { id: number; name: string }>({
 
   // Récupération des données via useQuery
   const { data, error, isLoading } = useQuery<T[], Error>({
-    queryKey: [contentType],
+    queryKey: [`${contentType}-contents`],
     queryFn: async () => {
-      const response = await fetchWithAuth<T[]>(`${contentType}`, {
+      console.log("Fetching data for", contentType);
+      return await fetchWithAuth<T[]>(`${contentType}`, {
         method: "GET",
       });
-      return response;
     },
   });
 
   // Mutation pour créer un nouvel élément
   const createMutation = useMutation({
-    mutationFn: (newData: T) =>
+    mutationFn: (newData: Partial<T>) =>
       fetchWithAuth<T>(`${contentType}`, {
         method: "POST",
         body: JSON.stringify(newData),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [contentType] });
+      queryClient.invalidateQueries({ queryKey: [`${contentType}-contents`] }); // Invalidate queries après création
       setIsFormOpen(false);
       setNotification({
         open: true,
@@ -66,7 +68,7 @@ const ContentManager = <T extends { id: number; name: string }>({
     },
   });
 
-  // Mutation pour mettre à jour un élément existant
+  // Mutation pour mettre à jour un contenu existant
   const updateMutation = useMutation({
     mutationFn: (updatedData: T) =>
       fetchWithAuth<T>(`${contentType}/${updatedData.id}`, {
@@ -74,7 +76,7 @@ const ContentManager = <T extends { id: number; name: string }>({
         body: JSON.stringify(updatedData),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [contentType] });
+      queryClient.invalidateQueries({ queryKey: [`${contentType}-contents`] }); // Invalidate queries après mise à jour
       setIsFormOpen(false);
       setNotification({
         open: true,
@@ -91,14 +93,14 @@ const ContentManager = <T extends { id: number; name: string }>({
     },
   });
 
-  // Mutation pour supprimer un élément
+  // Mutation pour supprimer un contenu
   const deleteMutation = useMutation({
     mutationFn: (id: number) =>
       fetchWithAuth<void>(`${contentType}/${id}`, {
         method: "DELETE",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [contentType] });
+      queryClient.invalidateQueries({ queryKey: [`${contentType}-contents`] }); // Invalidate queries après suppression
       setIsDeleteOpen(false);
       setNotification({
         open: true,

@@ -10,6 +10,7 @@ export type Field<T> = {
   label: string;
   type?: string;
   required?: boolean;
+  options?: { value: string | number; label: string }[];
 };
 
 // Exemple d'un type de contenu générique

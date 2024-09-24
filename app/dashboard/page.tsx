@@ -7,7 +7,7 @@ import ProgramsManager from "@/app/contents/ProgramsManager";
 import NotificationsManager from "@/app/contents/NotificationsManager";
 import POIsManager from "@/app/contents/POIsManager";
 import SecurityInfosManager from "@/app/contents/SecurityInfosManager";
-import DaysManager from "@/app/contents/DaysManager";
+import DaysManager from "@/app/contents/Days";
 import ConcertsManager from "@/app/contents/ConcertsManager";
 
 import Link from "next/link";
@@ -61,6 +61,11 @@ const Dashboard: React.FC = () => {
                   </Button>
                 </Link>
               </Box>
+              <Link href="/days" passHref>
+                <Button variant="contained" color="primary">
+                  Days
+                </Button>
+              </Link>
             </Box>
           </Container>
           <Box mt={8}>{renderSection()}</Box>
