@@ -1,10 +1,8 @@
-// app/utils/fetchWithAuth.ts
-
 export const fetchWithAuth = async <T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> => {
-  // Récupérer la base URL de l'API depuis les variables d'environnement
+  // Base URL de l'API
   const baseURL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
@@ -14,52 +12,62 @@ export const fetchWithAuth = async <T>(
   // Récupérer le token depuis le localStorage
   const token = localStorage.getItem("token");
 
+  if (!token) {
+    console.error("Token manquant, redirection vers la page de connexion.");
+    // Ici, vous pourriez rediriger l'utilisateur vers la page de connexion
+    throw new Error("Token manquant, veuillez vous reconnecter.");
+  }
+
   // Configurer les en-têtes
   const headers = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    Authorization: `Bearer ${token}`, // Ajouter le token dans les en-têtes
     ...options.headers,
   };
 
-  // Inclure les cookies si nécessaire (équivalent de withCredentials: true dans Axios)
+  // Options fetch, avec gestion des cookies (si nécessaire)
   const fetchOptions: RequestInit = {
     ...options,
     headers,
-    credentials: "include", // Ajoute cette ligne si votre API nécessite les cookies
+    credentials: "include", // Inclure les cookies si votre API les nécessite
   };
 
   try {
     const response = await fetch(url, fetchOptions);
 
-    // Gérer les erreurs de statut
+    // Gérer les erreurs de réponse HTTP
     if (!response.ok) {
-      // Tenter de parser le JSON pour obtenir le message d'erreur
       let errorMessage = "Erreur lors de la requête.";
-      const contentType = response.headers.get("Content-Type");
 
+      const contentType = response.headers.get("Content-Type");
       if (contentType && contentType.includes("application/json")) {
         const errorData = await response.json();
         errorMessage = errorData.message || errorMessage;
       } else {
-        // Si la réponse n'est pas JSON, lire le texte brut
         const errorText = await response.text();
-        console.error("Unexpected response format:", errorText);
-        errorMessage = `Unexpected response format: ${errorText}`;
+        console.error("Réponse inattendue:", errorText);
+        errorMessage = `Réponse inattendue: ${errorText}`;
+      }
+
+      if (response.status === 401) {
+        console.error("Jeton invalide ou expiré, redirection.");
+        // Vous pouvez rediriger l'utilisateur vers la page de login ici si besoin
+        throw new Error("Session expirée, veuillez vous reconnecter.");
       }
 
       throw new Error(errorMessage);
     }
 
-    // Si la réponse est 204 No Content, ne pas tenter de parser le JSON
+    // Si la réponse est "No Content" (204)
     if (response.status === 204) {
       return null as unknown as T;
     }
 
-    // Parser la réponse JSON
+    // Récupérer le corps de la réponse en JSON
     const data = await response.json();
     return data as T;
   } catch (error) {
-    console.error("FetchWithAuth error:", error);
+    console.error("Erreur dans FetchWithAuth:", error);
     throw error;
   }
 };
