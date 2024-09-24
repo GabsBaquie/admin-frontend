@@ -9,7 +9,7 @@ export const fetchWithAuth = async <T>(
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
   // Construire l'URL complète
-  const url = `${baseURL}${endpoint}`;
+  const url = `${baseURL}/${endpoint}`;
 
   // Récupérer le token depuis le localStorage
   const token = localStorage.getItem("token");

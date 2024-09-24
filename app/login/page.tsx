@@ -3,8 +3,8 @@
 
 import { AuthContext } from "@/app/context/AuthContext";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import React, { useContext, useState } from "react";
 import Link from "next/link";
+import React, { useContext, useState } from "react";
 
 const Login: React.FC = () => {
   const { login } = useContext(AuthContext);

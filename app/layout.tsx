@@ -2,10 +2,11 @@
 "use client";
 
 import { AuthProvider } from "@/app/context/AuthContext";
+import QueryProvider from "@/app/providers/QueryProvider";
+import { usePathname } from "next/navigation";
 import React from "react";
-import "./globals.css";
 import Navbar from "./components/Navbar";
-import { usePathname } from "next/navigation"; // Importer le hook pour obtenir le chemin actuel
+import "./globals.css";
 
 const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname(); // Obtenir l'URL actuelle
@@ -17,9 +18,11 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <html lang="fr">
       <body>
         <AuthProvider>
-          {/* Afficher la Navbar seulement si hideNavbar est faux */}
-          {!hideNavbar && <Navbar />}
-          {children}
+          <QueryProvider>
+            {/* Afficher la Navbar seulement si hideNavbar est faux */}
+            {!hideNavbar && <Navbar />}
+            {children}
+          </QueryProvider>
         </AuthProvider>
       </body>
     </html>

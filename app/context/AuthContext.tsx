@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const storedToken = localStorage.getItem("token");
     if (storedToken && checkTokenValidity(storedToken)) {
       setToken(storedToken);
-      // console.log("Token loaded from localStorage:", storedToken);
+      console.log("Token loaded from localStorage:", storedToken);
     } else {
       console.log("Token invalid or expired, removing token.");
       localStorage.removeItem("token"); // Supprime le token si invalide ou expiré
