@@ -37,7 +37,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <ProtectedRoute allowedRoles={["admin"]}>
+    <ProtectedRoute>
       <Box sx={{ display: "flex" }}>
         <Sidebar
           onSelect={setSelectedSection}
@@ -61,11 +61,6 @@ const Dashboard: React.FC = () => {
                   </Button>
                 </Link>
               </Box>
-              <Link href="/days" passHref>
-                <Button variant="contained" color="primary">
-                  Days
-                </Button>
-              </Link>
             </Box>
           </Container>
           <Box mt={8}>{renderSection()}</Box>
