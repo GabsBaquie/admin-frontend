@@ -1,7 +1,7 @@
 // app/types/content.ts
 
 export type Column<T> = {
-  id: keyof T extends "id" ? "id" : Extract<keyof T, string>;
+  id: keyof T extends 'id' ? 'id' : Extract<keyof T, string>;
   label: string;
 };
 

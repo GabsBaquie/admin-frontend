@@ -1,8 +1,10 @@
 export type SecurityInfo = {
   id: number;
   name: string;
+  title: string;
   description: string;
-  level: number;
-  createdAt: Date;
-  updatedAt: Date;
+  urgence: boolean;
+  actif: boolean;
+  createdAt: string;
+  updatedAt: string;
 };

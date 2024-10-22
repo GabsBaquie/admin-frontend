@@ -1,54 +1,54 @@
 // app/contents/ConcertsManager.tsx
 
-"use client";
+'use client';
 
-import ContentManager from "@/app/contents/genericT/ContentManager";
-import { Container } from "@mui/material";
-import React from "react";
-import { Concert } from "@/app/types/Concert";
+import ContentManager from '@/app/contents/genericT/ContentManager';
+import { Container } from '@mui/material';
+import React from 'react';
+import { Concert } from '@/app/types/Concert';
 
 const ConcertsManager: React.FC = () => {
-  const contentType = "concerts";
+  const contentType = 'concerts';
   const columns = [
-    { id: "id" as keyof Concert, label: "ID" },
-    { id: "name" as keyof Concert, label: "Nom" },
-    { id: "description" as keyof Concert, label: "Description" },
-    { id: "performer" as keyof Concert, label: "Interprète" },
-    { id: "time" as keyof Concert, label: "Heure" },
-    { id: "location" as keyof Concert, label: "Lieu" },
-    { id: "image" as keyof Concert, label: "Image" },
-    { id: "createdAt" as keyof Concert, label: "Créé le" },
-    { id: "updatedAt" as keyof Concert, label: "Mis à jour le" },
+    { id: 'id' as keyof Concert, label: 'ID' },
+    { id: 'name' as keyof Concert, label: 'Nom' },
+    { id: 'description' as keyof Concert, label: 'Description' },
+    { id: 'performer' as keyof Concert, label: 'Interprète' },
+    { id: 'time' as keyof Concert, label: 'Heure' },
+    { id: 'location' as keyof Concert, label: 'Lieu' },
+    { id: 'image' as keyof Concert, label: 'Image' },
+    { id: 'createdAt' as keyof Concert, label: 'Créé le' },
+    { id: 'updatedAt' as keyof Concert, label: 'Mis à jour le' },
   ];
 
   const fields = [
-    { name: "name" as keyof Concert, label: "Nom", required: true },
+    { name: 'name' as keyof Concert, label: 'Nom', required: true },
     {
-      name: "description" as keyof Concert,
-      label: "Description",
+      name: 'description' as keyof Concert,
+      label: 'Description',
       required: true,
-      type: "textarea",
+      type: 'textarea',
     },
-    { name: "performer" as keyof Concert, label: "Interprète", required: true },
+    { name: 'performer' as keyof Concert, label: 'Interprète', required: true },
     {
-      name: "time" as keyof Concert,
-      label: "Heure",
+      name: 'time' as keyof Concert,
+      label: 'Heure',
       required: true,
-      type: "time",
+      type: 'time',
     },
-    { name: "location" as keyof Concert, label: "Lieu", required: true },
-    { name: "image" as keyof Concert, label: "Image", required: true },
+    { name: 'location' as keyof Concert, label: 'Lieu', required: true },
+    { name: 'image' as keyof Concert, label: 'Image', required: true },
     {
-      name: "createdAt" as keyof Concert,
-      label: "Date de création",
+      name: 'createdAt' as keyof Concert,
+      label: 'Date de création',
       required: true,
-      type: "date",
+      type: 'date',
     },
     {
-      name: "updatedAt" as keyof Concert,
-      label: "Date de mise à jour",
+      name: 'updatedAt' as keyof Concert,
+      label: 'Date de mise à jour',
       required: true,
-      type: "date",
+      type: 'date',
     },
   ];
 
