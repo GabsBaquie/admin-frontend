@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Container } from '@mui/material';
 import ContentManager from '@/app/contents/genericT/ContentManager';
-import { fetchWithAuth } from '../utils/fetchWithAuth';
+import { Container } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { Program } from '../types/Program';
+import { fetchWithAuth } from '../utils/fetchWithAuth';
 
 interface Concert {
   id: number;
@@ -57,7 +57,7 @@ const DaysManager: React.FC = () => {
       type: 'select',
       options: programs.map((program: Program) => ({
         value: program.id,
-        label: program.name,
+        label: program.title,
       })),
     },
     {
