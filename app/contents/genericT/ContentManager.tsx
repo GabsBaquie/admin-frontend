@@ -119,7 +119,6 @@ const ContentManager = <T extends { id: number; title: string }, U>({
   const handleEdit = (item: T) => {
     setCurrentItem(item);
     setIsFormOpen(true);
-    console.log(item);
   };
 
   const handleDelete = (item: T) => {

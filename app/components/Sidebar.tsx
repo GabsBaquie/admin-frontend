@@ -1,6 +1,6 @@
 // frontend/src/components/Sidebar.tsx
 
-import React from "react";
+import React from 'react';
 import {
   Drawer,
   List,
@@ -9,12 +9,12 @@ import {
   ListItemIcon,
   ListItemText,
   Toolbar,
-} from "@mui/material";
-import PeopleIcon from "@mui/icons-material/People";
-import EventIcon from "@mui/icons-material/Event";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MapIcon from "@mui/icons-material/Map";
-import SecurityIcon from "@mui/icons-material/Security";
+} from '@mui/material';
+
+import EventIcon from '@mui/icons-material/Event';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import MapIcon from '@mui/icons-material/Map';
+import SecurityIcon from '@mui/icons-material/Security';
 
 interface SidebarProps {
   onSelect: (section: string) => void;
@@ -25,21 +25,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect, selectedSection }) => {
   const drawerWidth = 240;
 
   const menuItems = [
-    { text: "Utilisateurs", icon: <PeopleIcon />, section: "users" },
+    // { text: "Utilisateurs", icon: <PeopleIcon />, section: "users" },
 
-    { text: "Days", icon: <EventIcon />, section: "days" },
-    { text: "Concerts", icon: <EventIcon />, section: "concerts" },
-    { text: "Programmes", icon: <EventIcon />, section: "programs" },
+    { text: 'Days', icon: <EventIcon />, section: 'days' },
+    { text: 'Concerts', icon: <EventIcon />, section: 'concerts' },
+    { text: 'Programmes', icon: <EventIcon />, section: 'programs' },
     {
-      text: "Notifications",
+      text: 'Notifications',
       icon: <NotificationsIcon />,
-      section: "notifications",
+      section: 'notifications',
     },
-    { text: "POIs", icon: <MapIcon />, section: "pois" },
+    { text: 'POIs', icon: <MapIcon />, section: 'pois' },
     {
-      text: "Infos Sécurité",
+      text: 'Infos Sécurité',
       icon: <SecurityIcon />,
-      section: "securityinfos",
+      section: 'securityinfos',
     },
   ];
 
@@ -49,11 +49,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect, selectedSection }) => {
       sx={{
         width: drawerWidth,
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" },
+        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
       }}>
       <Toolbar />
       <List>
-        {menuItems.map((item) => (
+        {menuItems.map(item => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
               onClick={() => onSelect(item.section)}
