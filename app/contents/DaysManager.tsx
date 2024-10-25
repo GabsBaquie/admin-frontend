@@ -1,22 +1,22 @@
 // app/contents/DaysManager.tsx
 
-"use client";
+'use client';
 
-import ContentManager from "@/app/contents/genericT/ContentManager";
-import { Container } from "@mui/material";
-import React from "react";
+import ContentManager from '@/app/contents/genericT/ContentManager';
+import { Container } from '@mui/material';
+import React from 'react';
 
 const DaysManager: React.FC = () => {
-  const contentType = "days";
+  const contentType = 'days';
   const columns = [
-    { id: "id" as const, label: "ID" },
-    { id: "name" as const, label: "Nom" },
-    { id: "date" as const, label: "Date" },
+    { id: 'id' as const, label: 'ID' },
+    { id: 'title' as const, label: 'Nom' },
+    { id: 'date' as const, label: 'Date' },
   ];
 
   const fields = [
-    { name: "name" as const, label: "Nom", required: true },
-    { name: "date" as const, label: "Date", required: true, type: "date" },
+    { name: 'title' as const, label: 'Nom', required: true },
+    { name: 'date' as const, label: 'Date', required: true, type: 'date' },
   ];
 
   return (

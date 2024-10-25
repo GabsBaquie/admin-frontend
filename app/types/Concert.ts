@@ -2,7 +2,7 @@
 
 export type Concert = {
   id: number;
-  name: string;
+  title: string;
   description: string;
   performer: string;
   startTime: string;

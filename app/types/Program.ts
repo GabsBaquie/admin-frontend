@@ -1,10 +1,10 @@
 // app/types/Program.ts
 
-import { Day } from "./Day";
+import { Day } from './Day';
 
 export type Program = {
   id: number;
-  name: string;
+  title: string;
   description: string;
   createdAt: string;
   updatedAt: string;

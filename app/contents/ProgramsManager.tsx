@@ -1,41 +1,41 @@
 // app/contents/ProgramsManager.tsx
 
-import React from "react";
-import ContentManager from "@/app/contents/genericT/ContentManager";
-import { Program } from "@/app/types/Program";
+import React from 'react';
+import ContentManager from '@/app/contents/genericT/ContentManager';
+import { Program } from '@/app/types/Program';
 
 const ProgramsManager: React.FC = () => {
-  const contentType = "programs";
+  const contentType = 'programs';
 
   // Colonnes basées sur les propriétés du type Program
   const columns = [
-    { id: "id" as keyof Program, label: "ID" },
-    { id: "name" as keyof Program, label: "Nom" },
-    { id: "description" as keyof Program, label: "Description" },
-    { id: "createdAt" as keyof Program, label: "Créé le" },
-    { id: "updatedAt" as keyof Program, label: "Mis à jour le" },
+    { id: 'id' as keyof Program, label: 'ID' },
+    { id: 'title' as keyof Program, label: 'Nom' },
+    { id: 'description' as keyof Program, label: 'Description' },
+    { id: 'createdAt' as keyof Program, label: 'Créé le' },
+    { id: 'updatedAt' as keyof Program, label: 'Mis à jour le' },
   ];
 
   // Champs pour le formulaire de création/mise à jour
   const fields = [
-    { name: "name" as keyof Program, label: "Nom", required: true },
+    { name: 'title' as keyof Program, label: 'Nom', required: true },
     {
-      name: "description" as keyof Program,
-      label: "Description",
+      name: 'description' as keyof Program,
+      label: 'Description',
       required: true,
-      type: "textarea",
+      type: 'textarea',
     },
     {
-      name: "createdAt" as keyof Program,
-      label: "Date de création",
+      name: 'createdAt' as keyof Program,
+      label: 'Date de création',
       required: true,
-      type: "date",
+      type: 'date',
     },
     {
-      name: "updatedAt" as keyof Program,
-      label: "Date de mise à jour",
+      name: 'updatedAt' as keyof Program,
+      label: 'Date de mise à jour',
       required: true,
-      type: "date",
+      type: 'date',
     },
   ];
 

@@ -3,15 +3,15 @@
 'use client';
 
 import ContentManager from '@/app/contents/genericT/ContentManager';
+import { Concert } from '@/app/types/Concert';
 import { Container } from '@mui/material';
 import React from 'react';
-import { Concert } from '@/app/types/Concert';
 
 const ConcertsManager: React.FC = () => {
   const contentType = 'concerts';
   const columns = [
     { id: 'id' as keyof Concert, label: 'ID' },
-    { id: 'name' as keyof Concert, label: 'Nom' },
+    { id: 'title' as keyof Concert, label: 'Nom' },
     { id: 'description' as keyof Concert, label: 'Description' },
     { id: 'performer' as keyof Concert, label: 'Interprète' },
     { id: 'time' as keyof Concert, label: 'Heure' },
@@ -22,7 +22,7 @@ const ConcertsManager: React.FC = () => {
   ];
 
   const fields = [
-    { name: 'name' as keyof Concert, label: 'Nom', required: true },
+    { name: 'title' as keyof Concert, label: 'Nom', required: true },
     {
       name: 'description' as keyof Concert,
       label: 'Description',
