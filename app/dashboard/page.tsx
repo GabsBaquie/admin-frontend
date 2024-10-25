@@ -1,35 +1,35 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Box, Container, Typography, Button } from "@mui/material";
+import { Box, Button, Container, Typography } from '@mui/material';
+import React, { useState } from 'react';
 
-import ProgramsManager from "@/app/contents/ProgramsManager";
-import NotificationsManager from "@/app/contents/NotificationsManager";
-import POIsManager from "@/app/contents/POIsManager";
-import SecurityInfosManager from "@/app/contents/SecurityInfosManager";
-import DaysManager from "@/app/contents/Days";
-import ConcertsManager from "@/app/contents/ConcertsManager";
+import ConcertsManager from '@/app/contents/ConcertsManager';
+import DaysManager from '@/app/contents/Days';
+import NotificationsManager from '@/app/contents/NotificationsManager';
+import POIsManager from '@/app/contents/POIsManager';
+import ProgramsManager from '@/app/contents/ProgramsManager';
+import SecurityInfosManager from '@/app/contents/SecurityInfosManager';
 
-import Link from "next/link";
-import Sidebar from "../components/Sidebar";
-import ProtectedRoute from "../components/ProtectedRoute";
+import Link from 'next/link';
+import ProtectedRoute from '../components/ProtectedRoute';
+import Sidebar from '../components/Sidebar';
 
 const Dashboard: React.FC = () => {
-  const [selectedSection, setSelectedSection] = useState<string>("users"); // Section par défaut
+  const [selectedSection, setSelectedSection] = useState<string>('days'); // Section par défaut
 
   const renderSection = () => {
     switch (selectedSection) {
-      case "programs":
+      case 'programs':
         return <ProgramsManager />;
-      case "notifications":
+      case 'notifications':
         return <NotificationsManager />;
-      case "pois":
+      case 'pois':
         return <POIsManager />;
-      case "securityinfos":
+      case 'securityinfos':
         return <SecurityInfosManager />;
-      case "days":
+      case 'days':
         return <DaysManager />;
-      case "concerts":
+      case 'concerts':
         return <ConcertsManager />;
       default:
         return <Typography variant="h6">Section non trouvée</Typography>;
@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <ProtectedRoute>
-      <Box sx={{ display: "flex" }}>
+      <Box sx={{ display: 'flex' }}>
         <Sidebar
           onSelect={setSelectedSection}
           selectedSection={selectedSection}
