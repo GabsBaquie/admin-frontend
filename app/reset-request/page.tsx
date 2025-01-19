@@ -14,10 +14,10 @@ const ResetRequest: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetchWithAuth("/auth/reset-password-request", {
+      await fetchWithAuth("auth/reset-password-request", {
         method: "POST",
         body: JSON.stringify({ email }),
-      });
+      }, false);
 
       setSuccessMessage("Un email de réinitialisation a été envoyé !");
       setErrorMessage(null);
