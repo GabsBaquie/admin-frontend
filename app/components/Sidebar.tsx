@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 
 import EventIcon from '@mui/icons-material/Event';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import MapIcon from '@mui/icons-material/Map';
 import SecurityIcon from '@mui/icons-material/Security';
 
@@ -30,11 +29,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect, selectedSection }) => {
     { text: 'Days', icon: <EventIcon />, section: 'days' },
     { text: 'Concerts', icon: <EventIcon />, section: 'concerts' },
     { text: 'Programmes', icon: <EventIcon />, section: 'programs' },
-    {
-      text: 'Notifications',
-      icon: <NotificationsIcon />,
-      section: 'notifications',
-    },
     { text: 'POIs', icon: <MapIcon />, section: 'pois' },
     {
       text: 'Infos Sécurité',

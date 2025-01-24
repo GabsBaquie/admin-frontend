@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 
 import ConcertsManager from '@/app/contents/ConcertsManager';
 import DaysManager from '@/app/contents/Days';
-import NotificationsManager from '@/app/contents/NotificationsManager';
 import POIsManager from '@/app/contents/POIsManager';
 import ProgramsManager from '@/app/contents/ProgramsManager';
 import SecurityInfosManager from '@/app/contents/SecurityInfosManager';
@@ -21,8 +20,6 @@ const Dashboard: React.FC = () => {
     switch (selectedSection) {
       case 'programs':
         return <ProgramsManager />;
-      case 'notifications':
-        return <NotificationsManager />;
       case 'pois':
         return <POIsManager />;
       case 'securityinfos':

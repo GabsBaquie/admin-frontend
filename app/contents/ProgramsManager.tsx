@@ -16,7 +16,7 @@ const ProgramsManager: React.FC = () => {
     { id: 'updatedAt' as keyof Program, label: 'Mis à jour le' },
   ];
 
-  // Champs pour le formulaire de création/mise à jour
+  // Champs pour le formulaire de création
   const fields = [
     { name: 'title' as keyof Program, label: 'Nom', required: true },
     {
