@@ -28,7 +28,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect, selectedSection }) => {
 
     { text: 'Days', icon: <EventIcon />, section: 'days' },
     { text: 'Concerts', icon: <EventIcon />, section: 'concerts' },
-    { text: 'Programmes', icon: <EventIcon />, section: 'programs' },
     { text: 'POIs', icon: <MapIcon />, section: 'pois' },
     {
       text: 'Infos Sécurité',

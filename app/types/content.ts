@@ -16,7 +16,7 @@ export type Field<T> = {
 // Exemple d'un type de contenu générique
 export type Content = {
   id: number;
-  name: string;
+  title: string;
   description: string;
   createdAt: Date;
   updatedAt: Date;

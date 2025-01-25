@@ -5,8 +5,7 @@ import React, { useState } from 'react';
 
 import ConcertsManager from '@/app/contents/ConcertsManager';
 import DaysManager from '@/app/contents/Days';
-import POIsManager from '@/app/contents/POIsManager';
-import ProgramsManager from '@/app/contents/ProgramsManager';
+import POIsManager from '@/app/contents/POI';
 import SecurityInfosManager from '@/app/contents/SecurityInfosManager';
 
 import Link from 'next/link';
@@ -18,8 +17,6 @@ const Dashboard: React.FC = () => {
 
   const renderSection = () => {
     switch (selectedSection) {
-      case 'programs':
-        return <ProgramsManager />;
       case 'pois':
         return <POIsManager />;
       case 'securityinfos':

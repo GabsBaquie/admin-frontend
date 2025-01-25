@@ -51,21 +51,46 @@ const FormModal = <T extends { id: number }>({
         <Box component="form" noValidate autoComplete="off">
           {fields.map((field) => (
             <Box key={field.name} mb={2}>
-              {field.type === "select" ? (
+              {field.type === "multiselect" ? (
+                <TextField
+                  select
+                  fullWidth
+                  label={field.label}
+                  value={formData[field.name] || []}
+                  onChange={(e) =>
+                    handleChange(field.name, e.target.value)
+                  }
+                  SelectProps={{
+                    multiple: true, // Permet les sélections multiples
+                    renderValue: (selected) =>
+                      (selected as (string | number)[])
+                        .map((id) =>
+                          field.options?.find((option) => option.value === id)?.label
+                        )
+                        .join(", "),
+                  }}
+                  required={field.required}
+                >
+                  {field.options?.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              ) : field.type === "select" ? (
                 <TextField
                   select
                   fullWidth
                   label={field.label}
                   value={formData[field.name] || ""}
                   onChange={(e) => handleChange(field.name, e.target.value)}
-                  required={field.required}>
-                  {field.options?.map(
-                    (option: { value: string | number; label: string }) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    )
-                  )}
+                  required={field.required}
+                >
+                  {field.options?.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
                 </TextField>
               ) : (
                 <TextField

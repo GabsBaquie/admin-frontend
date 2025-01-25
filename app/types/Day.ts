@@ -6,6 +6,6 @@ export type Day = {
   id: number;
   title: string;
   date: string;
-  programId: number;
+  concertIds: number[];
   concerts?: Concert[];
 };
