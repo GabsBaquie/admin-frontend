@@ -29,7 +29,13 @@ const DaysManager: React.FC = () => {
     { id: 'id' as const, label: 'ID' },
     { id: 'title' as const, label: 'Name' },
     { id: 'date' as const, label: 'Date' },
-    { id: 'concertIds' as const, label: 'Concerts' },
+    { id: 'concerts' as const, label: 'Concerts',
+      render: (row: Day) => {
+      if (!Array.isArray(row.concerts) || row.concerts.length === 0) {
+        return 'Aucun concert';
+      }
+      return row.concerts.map((concert) => concert.title).join(' , ');
+    }, }
   ];
 
   const fields = [

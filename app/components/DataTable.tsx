@@ -116,16 +116,14 @@ const DataTable = <T extends { id: number }>({
                 <TableRow hover key={row.id}>
                   {columns.map((column) => (
                     <TableCell key={String(column.id)}>
-                      {String(row[column.id])}
+                      {column.render ? column.render(row) : String(row[column.id])}
                     </TableCell>
                   ))}
                   <TableCell>
                     <IconButton onClick={() => onEdit(row)} aria-label="edit">
                       <EditIcon />
                     </IconButton>
-                    <IconButton
-                      onClick={() => onDelete(row)}
-                      aria-label="delete">
+                    <IconButton onClick={() => onDelete(row)} aria-label="delete">
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
