@@ -63,10 +63,10 @@ const DataTable = <T extends { id: number }>({
   onEdit,
   onDelete,
 }: DataTableProps<T>) => {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<keyof T>("id");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleRequestSort = (property: keyof T) => {
     const isAsc = orderBy === property && order === "asc";

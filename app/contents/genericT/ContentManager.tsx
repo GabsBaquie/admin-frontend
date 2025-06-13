@@ -17,14 +17,14 @@ interface BaseContent {
   updatedAt?: string;
 }
 
-interface ContentManagerProps<T extends { id: number }, U extends BaseContent> {
+interface ContentManagerProps<T extends { id: number; createdAt?: string }, U extends BaseContent> {
   contentType: string;
   columns: Column<T>[];
   fields: Field<U>[];
   transformData?: (data: T) => U;
 }
 
-const ContentManager = <T extends { id: number }, U extends BaseContent>({
+const ContentManager = <T extends { id: number; createdAt?: string }, U extends BaseContent>({
   contentType,
   columns,
   fields,
@@ -108,20 +108,17 @@ const ContentManager = <T extends { id: number }, U extends BaseContent>({
   const handleEdit = (item: T) => setState((prev) => ({ ...prev, currentItem: item, isFormOpen: true }));
   const handleDelete = (item: T) => setState((prev) => ({ ...prev, currentItem: item, isDeleteOpen: true }));
 
-  const handleFormSubmit = (data: Partial<U>) => {
-    // Transformer les données pour correspondre au format attendu par le backend
+  const handleSubmit = (data: Partial<U>) => {
     const transformedData = {
       ...data,
       days: data.days || [],
       image: data.image || '',
-      // S'assurer que le champ time est au format HH:mm
       time: data.time ? new Date(`1970-01-01T${data.time}`).toLocaleTimeString('fr-FR', { 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: false 
       }) : '',
-      // Utiliser le format ISO pour les dates
-      createdAt: new Date().toISOString().split('T')[0],
+      createdAt: currentItem?.createdAt || new Date().toISOString().split('T')[0],
       updatedAt: new Date().toISOString().split('T')[0]
     } as U;
 
@@ -163,13 +160,17 @@ const ContentManager = <T extends { id: number }, U extends BaseContent>({
       ) : (
         <DataTable columns={columns} data={data || []} onEdit={handleEdit} onDelete={handleDelete} />
       )}
-      <FormModal<U>
+      <FormModal
         open={isFormOpen}
-        onClose={() => setState((prev) => ({ ...prev, isFormOpen: false }))}
-        onSubmit={handleFormSubmit}
-        initialData={currentItem ? (transformData ? transformData(currentItem) : currentItem as unknown as U) : undefined}
+        onClose={() => {
+          setState((prev) => ({ ...prev, isFormOpen: false }));
+          setState((prev) => ({ ...prev, currentItem: null }));
+        }}
+        onSubmit={handleSubmit}
+        initialData={currentItem && transformData ? transformData(currentItem) : undefined}
         title={currentItem ? `Modifier ${contentType.slice(0, -1)}` : `Créer ${contentType.slice(0, -1)}`}
         fields={fields}
+        mode={currentItem ? 'edit' : 'create'}
       />
       <DeleteConfirmation
         open={isDeleteOpen}

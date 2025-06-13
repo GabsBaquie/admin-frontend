@@ -8,7 +8,7 @@ export interface Field<T> {
   name: keyof T;
   label: string;
   required?: boolean;
-  type?: 'text' | 'textarea' | 'time' | 'date' | 'multiselect' | 'select';
+  type?: 'text' | 'textarea' | 'time' | 'date' | 'multiselect' | 'select' | 'image';
   multiple?: boolean;
   options?: { value: string | number; label: string }[];
 }

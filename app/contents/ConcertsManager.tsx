@@ -1,7 +1,8 @@
+
 'use client';
 
 import ContentManager from '@/app/contents/genericT/ContentManager';
-import { Concert } from '@/app/types/Concert';
+import { Concert,} from '@/app/types/Concert';
 import { Container } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { fetchWithAuth } from '@/app/utils/fetchWithAuth';
