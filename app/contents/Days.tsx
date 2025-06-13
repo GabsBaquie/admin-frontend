@@ -1,70 +1,111 @@
+'use client';
+
 import ContentManager from '@/app/contents/genericT/ContentManager';
+import { Day } from '@/app/types/Day';
 import { Container } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { fetchWithAuth } from '../utils/fetchWithAuth';
+import { fetchWithAuth } from '@/app/utils/fetchWithAuth';
+import { useToast } from '@/app/context/ToastContext';
+import { Column, Field } from '@/app/types/content';
+
 interface Concert {
   id: number;
   title: string;
+  time: string;
+}
+
+interface DayFormData {
+  id?: number;
+  title: string;
+  date: string;
+  concertIds: number[];
 }
 
 const DaysManager: React.FC = () => {
   const contentType = 'days';
   const [concerts, setConcerts] = useState<Concert[]>([]);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const fetchConcerts = async () => {
       try {
         const response = await fetchWithAuth<Concert[]>('concerts');
-        console.log('Concerts fetched:', response);
         setConcerts(response);
       } catch (error) {
         console.error('Error fetching concerts:', error);
+        showToast('Erreur lors du chargement des concerts', 'error');
       }
     };
 
     fetchConcerts();
-  }, []);
+  }, [showToast]);
 
-  const columns = [
-    { id: 'id' as const, label: 'ID' },
-    { id: 'title' as const, label: 'Name' },
-    { id: 'date' as const, label: 'Date' },
-    { id: 'concerts' as const, label: 'Concerts',
+  const columns: Column<Day>[] = [
+    { id: 'id', label: 'ID' },
+    { id: 'title', label: 'Nom' },
+    { 
+      id: 'date', 
+      label: 'Date',
+      render: (row: Day) => new Date(row.date).toLocaleDateString()
+    },
+    { 
+      id: 'concerts', 
+      label: 'Concerts',
       render: (row: Day) => {
-      if (!Array.isArray(row.concerts) || row.concerts.length === 0) {
-        return 'Aucun concert';
+        if (!Array.isArray(row.concerts) || row.concerts.length === 0) {
+          return 'Aucun concert';
+        }
+        return row.concerts.map(concert => concert.title).join(' , ');
       }
-      return row.concerts.map((concert) => concert.title).join(' , ');
-    }, }
+    }
   ];
 
-  const fields = [
-    { name: 'title' as const, label: 'Name',required:true, type: 'text' },
-    { name: 'date' as const, label: 'Date', required: true, type: 'date' },
+  const fields: Field<DayFormData>[] = [
+    { name: 'title', label: 'Nom', required: true, type: 'text' },
     {
-      name: 'concertIds' as const,
-      label: 'Concerts',
+      name: 'date',
+      label: 'Date',
       required: true,
+      type: 'date',
+    },
+    {
+      name: 'concertIds',
+      label: 'Concerts',
+      required: false,
       type: 'multiselect',
       multiple: true,
-      options: concerts.map((concert: Concert) => ({
+      options: concerts.map(concert => ({
         value: concert.id,
-        label: concert.title,
+        label: `${concert.title} (${concert.time})`,
       })),
     },
   ];
 
+  const transformData = (data: Day): DayFormData => {
+    try {
+      return {
+        id: data.id,
+        title: data.title,
+        date: data.date,
+        concertIds: data.concerts?.map(concert => concert.id) || []
+      };
+    } catch (error) {
+      console.error('Error transforming data:', error);
+      showToast('Erreur lors de la transformation des données', 'error');
+      throw error;
+    }
+  };
+
   return (
     <Container maxWidth="lg">
-      <ContentManager
+      <ContentManager<Day, DayFormData>
         contentType={contentType}
         columns={columns}
         fields={fields}
+        transformData={transformData}
       />
     </Container>
   );
 };
-
-
 
 export default DaysManager;
