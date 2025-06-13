@@ -20,7 +20,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 interface DataTableProps<T extends { id: number }> {
-  columns: { id: keyof T; label: string }[];
+  columns: { 
+    id: keyof T; 
+    label: string;
+    render?: (row: T) => React.ReactNode;
+  }[];
   data: T[];
   onEdit: (item: T) => void;
   onDelete: (item: T) => void;

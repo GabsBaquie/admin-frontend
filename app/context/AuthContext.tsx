@@ -1,134 +1,143 @@
 // app/context/AuthContext.tsx
+"use client";
 
 import { useRouter } from "next/navigation";
-import React, {
-  createContext,
-  ReactNode,
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
-import jwtDecode from "jwt-decode"; // Import par défaut
+import React, { createContext, ReactNode, useEffect, useCallback, useReducer } from "react";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
+import { AuthContextProps, AuthState, LoginResponse, AUTH_ROUTES } from "@/app/types/auth";
+import { authService } from "@/app/services/auth.service";
+import { useErrorHandler } from "@/app/utils/error-handler";
+import { ErrorCodes, AppError } from "@/app/utils/error-handler";
 
-interface AuthContextProps {
-  token: string | null;
-  userRole: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-}
+// État initial
+const initialState: AuthState = {
+  token: null,
+  userRole: null,
+  user: null,
+  isLoading: true,
+  error: null,
+};
 
-interface DecodedToken {
-  exp: number;
-  role: string;
-  userId: number;
-  username: string;
-  email: string;
-}
+// Types d'actions
+type AuthAction =
+  | { type: 'SET_TOKEN'; payload: string }
+  | { type: 'SET_USER'; payload: LoginResponse['user'] }
+  | { type: 'SET_ERROR'; payload: string }
+  | { type: 'CLEAR_ERROR' }
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'LOGOUT' };
 
-interface LoginResponse {
-  token: string;
-  user: {
-    role: string;
-  };
+// Reducer
+function authReducer(state: AuthState, action: AuthAction): AuthState {
+  switch (action.type) {
+    case 'SET_TOKEN':
+      return { ...state, token: action.payload, error: null };
+    case 'SET_USER':
+      return { ...state, user: action.payload, userRole: action.payload.role, error: null };
+    case 'SET_ERROR':
+      return { ...state, error: action.payload, isLoading: false };
+    case 'CLEAR_ERROR':
+      return { ...state, error: null };
+    case 'SET_LOADING':
+      return { ...state, isLoading: action.payload };
+    case 'LOGOUT':
+      return { ...initialState, isLoading: false };
+    default:
+      return state;
+  }
 }
 
 export const AuthContext = createContext<AuthContextProps>({
-  token: null,
-  userRole: null,
+  ...initialState,
   login: async () => {},
   logout: () => {},
+  clearError: () => {},
 });
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(authReducer, initialState);
   const router = useRouter();
+  const { handleError } = useErrorHandler();
 
-  // Fonction pour vérifier si le token est expiré
-  const checkTokenValidity = (token: string): boolean => {
-    try {
-      const decodedToken = jwtDecode<DecodedToken>(token);
-      const currentTime = Date.now() / 1000; // Convertir en secondes
-      if (decodedToken.exp > currentTime) {
-        setUserRole(decodedToken.role);
-        return true;
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const token = authService.getToken();
+        if (token) {
+          if (authService.isTokenExpired(token)) {
+            try {
+              const newToken = await authService.refreshToken();
+              dispatch({ type: 'SET_TOKEN', payload: newToken });
+            } catch (refreshError) {
+              const errorMessage = refreshError instanceof Error 
+                ? refreshError.message 
+                : 'Session expirée';
+              throw new AppError(
+                errorMessage,
+                ErrorCodes.AUTHENTICATION.TOKEN_EXPIRED
+              );
+            }
+          } else {
+            dispatch({ type: 'SET_TOKEN', payload: token });
+          }
+        }
+      } catch (error) {
+        handleError(error);
+        router.push(AUTH_ROUTES.LOGIN);
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
-      return false;
+    };
+
+    initializeAuth();
+  }, [router, handleError]);
+
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+
+      const response = await fetchWithAuth<LoginResponse>(
+        "/auth/login",
+        {
+          method: "POST",
+          body: JSON.stringify({ email, password }),
+        },
+        false
+      );
+
+      authService.setToken(response.token);
+      dispatch({ type: 'SET_TOKEN', payload: response.token });
+      dispatch({ type: 'SET_USER', payload: response.user });
+      router.push(AUTH_ROUTES.DASHBOARD);
     } catch (error) {
-      console.error("Error decoding token:", error);
-      return false;
+      handleError(error);
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
+  }, [router, handleError]);
+
+  const logout = useCallback(() => {
+    authService.clearToken();
+    dispatch({ type: 'LOGOUT' });
+    router.push(AUTH_ROUTES.LOGIN);
+  }, [router]);
+
+  const clearError = useCallback(() => {
+    dispatch({ type: 'CLEAR_ERROR' });
+  }, []);
+
+  const value = {
+    ...state,
+    login,
+    logout,
+    clearError,
   };
 
-  // useEffect pour charger le token au premier rendu et vérifier sa validité
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken && checkTokenValidity(storedToken)) {
-      setToken(storedToken);
-      console.log("Token loaded from localStorage:", storedToken); // Affiche le token dans la console
-    } else {
-      console.log("Token invalid or expired, removing token.");
-      localStorage.removeItem("token"); // Supprime le token si invalide ou expiré
-      localStorage.removeItem("role");
-      if (storedToken) {
-        router.push("/login"); // Redirige seulement si un token était présent mais invalide
-      }
-    }
-    setLoading(false); // Assurez-vous de définir "loading" à false après l'initialisation
-  }, [router]);
-
-  // Fonction login, ajoutée dans un useCallback pour éviter les re-render inutiles
-  const login = useCallback(
-    async (email: string, password: string) => {
-      try {
-        const response = await fetchWithAuth<LoginResponse>(
-          "/auth/login",
-          {
-            method: "POST",
-            body: JSON.stringify({ email, password }),
-          },
-          false // Passe false pour ne pas exiger de token
-        );
-
-        // Stocke le token et le rôle dans le localStorage
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("role", response.user.role);
-
-        console.log("Token after login:", response.token); // Log le token pour vérifier qu'il est bien stocké
-
-        setToken(response.token); // Met à jour l'état avec le nouveau token
-        setUserRole(response.user.role); // Met à jour le rôle
-        router.push("/dashboard"); // Redirige vers le dashboard après connexion réussie
-      } catch (err) {
-        console.error("Login error:", err);
-        if (err instanceof Error) {
-          throw new Error(err.message || "Identifiants invalides");
-        } else {
-          throw new Error("Une erreur inconnue s'est produite.");
-        }
-      }
-    },
-    [router]
-  );
-
-  // Fonction logout, également encapsulée dans un useCallback
-  const logout = useCallback(() => {
-    console.log("Logging out...");
-    localStorage.removeItem("token");
-    localStorage.removeItem("role"); // Supprime également le rôle du localStorage
-    setToken(null); // Réinitialise l'état du token
-    setUserRole(null); // Réinitialise le rôle
-    router.push("/login"); // Redirige vers la page de login après déconnexion
-  }, [router]);
-
-  // Ne rend pas les enfants tant que l'état "loading" n'est pas faux
   return (
-    <AuthContext.Provider value={{ token, userRole, login, logout }}>
-      {!loading && children}
+    <AuthContext.Provider value={value}>
+      {!state.isLoading && children}
     </AuthContext.Provider>
   );
 };

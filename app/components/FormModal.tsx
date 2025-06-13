@@ -1,15 +1,16 @@
 // app/components/FormModal.tsx
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   TextField,
   MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  Typography,
+  Modal,
 } from "@mui/material";
 import { Field } from "@/app/types/content";
 
@@ -17,104 +18,98 @@ interface FormModalProps<T> {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: Partial<T>) => void;
-  initialData?: Partial<T>;
   title: string;
   fields: Field<T>[];
+  initialData?: Partial<T>;
 }
 
-const FormModal = <T extends { id: number }>({
-  open,
-  onClose,
-  onSubmit,
-  initialData = {},
-  title,
-  fields,
+const FormModal = <T,>({ 
+  open, 
+  onClose, 
+  onSubmit, 
+  title, 
+  fields, 
+  initialData 
 }: FormModalProps<T>) => {
-  const [formData, setFormData] = React.useState<Partial<T>>(initialData);
+  const [formData, setFormData] = useState<Partial<T>>(initialData || {});
 
-  const handleChange = (field: keyof T, value: unknown) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: value,
-    }));
+  const handleChange = (name: keyof T, value: string | string[] | number | number[]) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     onSubmit(formData);
-    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Box component="form" noValidate autoComplete="off">
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby="form-modal-title"
+      keepMounted
+    >
+      <Box 
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 1,
+        }}
+        role="dialog"
+        aria-modal="true"
+      >
+        <Typography id="form-modal-title" variant="h6" component="h2" gutterBottom>
+          {title}
+        </Typography>
+        <form onSubmit={handleSubmit}>
           {fields.map((field) => (
-            <Box key={field.name} mb={2}>
-              {field.type === "multiselect" ? (
-                <TextField
-                  select
-                  fullWidth
-                  label={field.label}
-                  value={formData[field.name] || []}
-                  onChange={(e) =>
-                    handleChange(field.name, e.target.value)
-                  }
-                  SelectProps={{
-                    multiple: true, // Permet les sélections multiples
-                    renderValue: (selected) =>
-                      (selected as (string | number)[])
-                        .map((id) =>
-                          field.options?.find((option) => option.value === id)?.label
-                        )
-                        .join(", "),
-                  }}
-                  required={field.required}
-                >
-                  {field.options?.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              ) : field.type === "select" ? (
-                <TextField
-                  select
-                  fullWidth
-                  label={field.label}
-                  value={formData[field.name] || ""}
-                  onChange={(e) => handleChange(field.name, e.target.value)}
-                  required={field.required}
-                >
-                  {field.options?.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
+            <Box key={String(field.name)} sx={{ mb: 2 }}>
+              {field.type === 'multiselect' || field.type === 'select' ? (
+                <FormControl fullWidth>
+                  <InputLabel>{field.label}</InputLabel>
+                  <Select
+                    multiple={field.multiple}
+                    value={field.multiple ? (formData[field.name] as string[] || []) : (formData[field.name] as string || '')}
+                    onChange={(e) => handleChange(field.name, e.target.value)}
+                    label={field.label}
+                    required={field.required}
+                  >
+                    {field.options?.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               ) : (
                 <TextField
                   fullWidth
                   label={field.label}
-                  type={field.type}
-                  value={formData[field.name] || ""}
+                  type={field.type === 'time' ? 'time' : 'text'}
+                  value={formData[field.name] || ''}
                   onChange={(e) => handleChange(field.name, e.target.value)}
                   required={field.required}
+                  multiline={field.type === 'textarea'}
+                  rows={field.type === 'textarea' ? 4 : 1}
                 />
               )}
             </Box>
           ))}
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="secondary">
-          Annuler
-        </Button>
-        <Button onClick={handleSubmit} color="primary">
-          Enregistrer
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <Button onClick={onClose}>Annuler</Button>
+            <Button type="submit" variant="contained" color="primary">
+              Enregistrer
+            </Button>
+          </Box>
+        </form>
+      </Box>
+    </Modal>
   );
 };
 
