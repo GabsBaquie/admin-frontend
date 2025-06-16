@@ -55,7 +55,7 @@ const FormModal = <T extends WithImage>({
     }
   }, [open, initialData]);
 
-  const validateField = (field: Field<T>, value: string | string[] | number | number[] | undefined): string | null => {
+  const validateField = (field: Field<T>, value: string | number | string[] | number[] | undefined): string | null => {
     if (mode === 'create' && field.required && !value) {
       return 'Ce champ est requis';
     }
@@ -93,7 +93,7 @@ const FormModal = <T extends WithImage>({
     
     const newErrors: Partial<Record<keyof T, string>> = {};
     fields.forEach(field => {
-      const error = validateField(field, formData[field.name]);
+      const error = validateField(field, formData[field.name] as string | number | string[] | number[] | undefined);
       if (error) {
         newErrors[field.name] = error;
       }

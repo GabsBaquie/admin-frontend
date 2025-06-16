@@ -1,8 +1,5 @@
-
-'use client';
-
 import ContentManager from '@/app/contents/genericT/ContentManager';
-import { Concert,} from '@/app/types/Concert';
+import { Concert } from '@/app/types/Concert';
 import { Container } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { fetchWithAuth } from '@/app/utils/fetchWithAuth';
@@ -52,61 +49,20 @@ const ConcertsManager: React.FC = () => {
     { id: 'title', label: 'Nom' },
     { id: 'description', label: 'Description' },
     { id: 'performer', label: 'Interprète' },
-    { 
-      id: 'time', 
-      label: 'Heure',
-      render: (row: Concert) => {
-        try {
-          const [hours, minutes] = row.time.split(':');
-          return `${hours}:${minutes}`;
-        } catch (error) {
-          console.error('Error parsing time:', error);
-          return row.time;
-        }
-      }
-    },
+    { id: 'time', label: 'Heure', render: (row: Concert) => { try { const [hours, minutes] = row.time.split(':'); return `${hours}:${minutes}`; } catch (error) { console.error('Error parsing time:', error); return row.time; } } },
     { id: 'location', label: 'Lieu' },
     { id: 'image', label: 'Image' },
-    { 
-      id: 'days', 
-      label: 'Jours',
-      render: (row: Concert) => {
-        if (!Array.isArray(row.days) || row.days.length === 0) {
-          return 'Aucun jour';
-        }
-        return row.days.map(day => day.title).join(' , ');
-      }
-    }
+    { id: 'days', label: 'Jours', render: (row: Concert) => Array.isArray(row.days) && row.days.length > 0 ? row.days.map(day => day.title).join(' , ') : 'Aucun jour' }
   ];
 
   const fields: Field<ConcertFormData>[] = [
     { name: 'title', label: 'Nom', required: true, type: 'text' },
-    {
-      name: 'description',
-      label: 'Description',
-      required: true,
-      type: 'textarea',
-    },
+    { name: 'description', label: 'Description', required: true, type: 'textarea' },
     { name: 'performer', label: 'Interprète', required: true, type: 'text' },
-    {
-      name: 'time',
-      label: 'Heure',
-      required: true,
-      type: 'time',
-    },
+    { name: 'time', label: 'Heure', required: true, type: 'time' },
     { name: 'location', label: 'Lieu', required: true, type: 'text' },
     { name: 'image', label: 'Image', required: false, type: 'text' },
-    {
-      name: 'days',
-      label: 'Jours',
-      required: false,
-      type: 'multiselect',
-      multiple: true,
-      options: days.map(day => ({
-        value: day.id,
-        label: `${day.title} (${new Date(day.date).toLocaleDateString()})`,
-      })),
-    },
+    { name: 'days', label: 'Jours', required: false, type: 'multiselect', multiple: true, options: days.map(day => ({ value: day.id, label: `${day.title} (${new Date(day.date).toLocaleDateString()})` })) }
   ];
 
   const transformData = (data: Concert): ConcertFormData => {

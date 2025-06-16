@@ -1,5 +1,3 @@
-'use client';
-
 import ContentManager from '@/app/contents/genericT/ContentManager';
 import { Day } from '@/app/types/Day';
 import { Container } from '@mui/material';
@@ -43,42 +41,14 @@ const DaysManager: React.FC = () => {
   const columns: Column<Day>[] = [
     { id: 'id', label: 'ID' },
     { id: 'title', label: 'Nom' },
-    { 
-      id: 'date', 
-      label: 'Date',
-      render: (row: Day) => new Date(row.date).toLocaleDateString()
-    },
-    { 
-      id: 'concerts', 
-      label: 'Concerts',
-      render: (row: Day) => {
-        if (!Array.isArray(row.concerts) || row.concerts.length === 0) {
-          return 'Aucun concert';
-        }
-        return row.concerts.map(concert => concert.title).join(' , ');
-      }
-    }
+    { id: 'date', label: 'Date', render: (row: Day) => new Date(row.date).toLocaleDateString() },
+    { id: 'concerts', label: 'Concerts', render: (row: Day) => Array.isArray(row.concerts) && row.concerts.length > 0 ? row.concerts.map(concert => concert.title).join(' , ') : 'Aucun concert' }
   ];
 
   const fields: Field<DayFormData>[] = [
     { name: 'title', label: 'Nom', required: true, type: 'text' },
-    {
-      name: 'date',
-      label: 'Date',
-      required: true,
-      type: 'date',
-    },
-    {
-      name: 'concertIds',
-      label: 'Concerts',
-      required: false,
-      type: 'multiselect',
-      multiple: true,
-      options: concerts.map(concert => ({
-        value: concert.id,
-        label: `${concert.title} (${concert.time})`,
-      })),
-    },
+    { name: 'date', label: 'Date', required: true, type: 'date' },
+    { name: 'concertIds', label: 'Concerts', required: false, type: 'multiselect', multiple: true, options: concerts.map(concert => ({ value: concert.id, label: `${concert.title} (${concert.time})` })) }
   ];
 
   const transformData = (data: Day): DayFormData => {
