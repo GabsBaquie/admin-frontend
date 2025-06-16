@@ -109,24 +109,41 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U extends 
   const handleDelete = (item: T) => setState((prev) => ({ ...prev, currentItem: item, isDeleteOpen: true }));
 
   const handleSubmit = (data: Partial<U>) => {
+    // Vérifier si l'image est en base64
+    const isBase64Image = (str: string) => {
+      if (!str) return false;
+      return str.startsWith('data:image/') && str.includes(';base64,');
+    };
+
     const transformedData = {
       ...data,
       days: data.days || [],
-      image: data.image || '',
+      image: data.image && isBase64Image(data.image) ? data.image : '',
       time: data.time ? new Date(`1970-01-01T${data.time}`).toLocaleTimeString('fr-FR', { 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: false 
       }) : '',
-      createdAt: currentItem?.createdAt || new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString().split('T')[0]
+      createdAt: currentItem?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     } as U;
 
-    console.log('Form data before transformation:', data);
-    console.log('Transformed data:', transformedData);
-
+    // Si c'est une mise à jour, on ne modifie que les champs qui ont changé
     if (currentItem) {
-      const updatedData = { ...transformedData, id: currentItem.id } as U & { id: number };
+      const updatedData = {
+        ...currentItem,
+        ...transformedData,
+        id: currentItem.id
+      } as U & { id: number };
+
+      // Si l'image n'a pas changé, on garde l'ancienne
+      if (!isBase64Image(transformedData.image as string)) {
+        const currentItemWithImage = currentItem as unknown as { image?: string };
+        if (currentItemWithImage.image) {
+          (updatedData as unknown as { image: string }).image = currentItemWithImage.image;
+        }
+      }
+
       updateMutation.mutate(updatedData);
     } else {
       createMutation.mutate(transformedData);

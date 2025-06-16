@@ -31,6 +31,9 @@ interface WithImage {
   image?: string;
 }
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 const FormModal = <T extends WithImage>({ 
   open, 
   onClose, 
@@ -42,8 +45,8 @@ const FormModal = <T extends WithImage>({
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData || {});
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (open && initialData) {
@@ -55,15 +58,18 @@ const FormModal = <T extends WithImage>({
     }
   }, [open, initialData]);
 
-  const validateField = (field: Field<T>, value: string | string[] | number | number[] | undefined): string | null => {
+  const validateField = (field: Field<T>, value: T[keyof T] | undefined): string | null => {
     if (mode === 'create' && field.required && !value) {
       return 'Ce champ est requis';
     }
     return null;
   };
 
-  const handleChange = (name: keyof T, value: string | string[] | number | number[]) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleChange = (name: keyof T, value: T[keyof T]) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
     
     const field = fields.find(f => f.name === name);
     if (field) {
@@ -75,16 +81,92 @@ const FormModal = <T extends WithImage>({
     }
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      // Créer une URL pour la preview
+  const optimizeImage = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+      reader.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Redimensionner si l'image est trop grande
+          const MAX_DIMENSION = 1200;
+          if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+            if (width > height) {
+              height = Math.round((height * MAX_DIMENSION) / width);
+              width = MAX_DIMENSION;
+            } else {
+              width = Math.round((width * MAX_DIMENSION) / height);
+              height = MAX_DIMENSION;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Impossible de créer le contexte canvas'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convertir en WebP si possible, sinon en JPEG
+          const quality = 0.8;
+          const optimizedBase64 = canvas.toDataURL('image/webp', quality);
+          resolve(optimizedBase64);
+        };
+        img.onerror = () => reject(new Error('Erreur lors du chargement de l\'image'));
+        img.src = e.target?.result as string;
       };
+      reader.onerror = () => reject(new Error('Erreur lors de la lecture du fichier'));
       reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validation du type de fichier
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setErrors(prev => ({
+        ...prev,
+        image: 'Format d\'image non supporté. Utilisez JPEG, PNG ou WebP.'
+      }));
+      return;
+    }
+
+    // Validation de la taille
+    if (file.size > MAX_FILE_SIZE) {
+      setErrors(prev => ({
+        ...prev,
+        image: 'L\'image est trop volumineuse. Taille maximale : 5MB.'
+      }));
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      
+      // Créer une prévisualisation immédiate
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+
+      // Optimiser l'image en arrière-plan
+      const optimizedImage = await optimizeImage(file);
+      setImagePreview(optimizedImage);
+      
+      // Nettoyer l'URL de prévisualisation
+      URL.revokeObjectURL(previewUrl);
+    } catch {
+      setErrors(prev => ({
+        ...prev,
+        image: 'Erreur lors du traitement de l\'image.'
+      }));
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -102,14 +184,16 @@ const FormModal = <T extends WithImage>({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 || mode === 'edit') {
-      // Si une nouvelle image a été sélectionnée, on la convertit en base64
-      if (selectedImage) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64String = reader.result as string;
-          onSubmit({ ...formData, image: base64String });
-        };
-        reader.readAsDataURL(selectedImage);
+      if (isUploading) {
+        setErrors(prev => ({
+          ...prev,
+          image: 'Veuillez attendre que l\'image soit traitée.'
+        }));
+        return;
+      }
+
+      if (imagePreview) {
+        onSubmit({ ...formData, image: imagePreview });
       } else {
         onSubmit(formData);
       }
@@ -133,7 +217,7 @@ const FormModal = <T extends WithImage>({
           <Select
             multiple={field.multiple}
             value={field.multiple ? (formData[field.name] as string[] || []) : (formData[field.name] as string || '')}
-            onChange={(e) => handleChange(field.name, e.target.value)}
+            onChange={(e) => handleChange(field.name, e.target.value as T[keyof T])}
             label={field.label}
             required={isRequired}
           >
@@ -156,7 +240,7 @@ const FormModal = <T extends WithImage>({
           label={field.label}
           type="date"
           value={formatDateForInput(formData[field.name] as string)}
-          onChange={(e) => handleChange(field.name, e.target.value)}
+          onChange={(e) => handleChange(field.name, e.target.value as T[keyof T])}
           required={isRequired}
           error={!!error}
           helperText={error}
@@ -177,11 +261,12 @@ const FormModal = <T extends WithImage>({
       return (
         <Box key={String(field.name)} sx={{ mb: 2 }}>
           <input
-            accept="image/*"
+            accept={ALLOWED_TYPES.join(',')}
             style={{ display: 'none' }}
             id="image-upload"
             type="file"
             onChange={handleImageChange}
+            disabled={isUploading}
           />
           <label htmlFor="image-upload">
             <Button
@@ -189,8 +274,9 @@ const FormModal = <T extends WithImage>({
               component="span"
               startIcon={<ImageIcon />}
               sx={{ mb: 2 }}
+              disabled={isUploading}
             >
-              Choisir une image
+              {isUploading ? 'Traitement...' : 'Choisir une image'}
             </Button>
           </label>
           {imagePreview && (
@@ -208,6 +294,11 @@ const FormModal = <T extends WithImage>({
               />
             </Box>
           )}
+          {errors.image && (
+            <Typography color="error" variant="caption" sx={{ display: 'block', mt: 1 }}>
+              {errors.image}
+            </Typography>
+          )}
         </Box>
       );
     }
@@ -219,7 +310,7 @@ const FormModal = <T extends WithImage>({
         label={field.label}
         type={field.type === 'time' ? 'time' : 'text'}
         value={formData[field.name] || ''}
-        onChange={(e) => handleChange(field.name, e.target.value)}
+        onChange={(e) => handleChange(field.name, e.target.value as T[keyof T])}
         required={isRequired}
         multiline={field.type === 'textarea'}
         rows={field.type === 'textarea' ? 4 : 1}

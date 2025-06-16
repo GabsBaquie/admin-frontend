@@ -1,4 +1,3 @@
-
 'use client';
 
 import ContentManager from '@/app/contents/genericT/ContentManager';
@@ -95,7 +94,7 @@ const ConcertsManager: React.FC = () => {
       type: 'time',
     },
     { name: 'location', label: 'Lieu', required: true, type: 'text' },
-    { name: 'image', label: 'Image', required: false, type: 'text' },
+    { name: 'image', label: 'Image', required: false, type: 'image' },
     {
       name: 'days',
       label: 'Jours',
@@ -111,21 +110,36 @@ const ConcertsManager: React.FC = () => {
 
   const transformData = (data: Concert): ConcertFormData => {
     try {
-      return {
+      console.log('Données avant transformation:', data);
+      
+      // Vérifier si l'image est en base64
+      const isBase64Image = (str: string) => {
+        if (!str) return false;
+        return str.startsWith('data:image/') && str.includes(';base64,');
+      };
+
+      // Transformer les données
+      const transformed: ConcertFormData = {
         id: data.id,
         title: data.title,
         description: data.description,
         performer: data.performer,
-        time: data.time,
+        time: data.time ? new Date(`1970-01-01T${data.time}`).toLocaleTimeString('fr-FR', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }) : '',
         location: data.location,
-        image: data.image || '',
+        image: data.image && isBase64Image(data.image) ? data.image : '',
         days: data.days?.map(day => day.id) || [],
         createdAt: data.createdAt,
-        updatedAt: data.updatedAt
+        updatedAt: new Date().toISOString()
       };
+
+      console.log('Données après transformation:', transformed);
+      return transformed;
     } catch (error) {
-      console.error('Error transforming data:', error);
-      showToast('Erreur lors de la transformation des données', 'error');
+      console.error('Erreur lors de la transformation des données:', error);
       throw error;
     }
   };
