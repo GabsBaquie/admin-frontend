@@ -16,14 +16,8 @@ const SecurityInfosManager: React.FC = () => {
   const fields: Field<SecurityInfo>[] = [
     { name: 'title', label: 'Titre', required: true, type: 'text' },
     { name: 'description', label: 'Description', required: true, type: 'textarea' },
-    { name: 'urgence', label: 'Urgence', required: true, type: 'select', options: [
-      { value: 1, label: 'Oui' },
-      { value: 0, label: 'Non' },
-    ] },
-    { name: 'actif', label: 'Actif', required: true, type: 'select', options: [
-      { value: 1, label: 'Oui' },
-      { value: 0, label: 'Non' },
-    ] },
+    { name: 'urgence', label: 'Urgence', required: true, type: 'select', options: [{ value: 1, label: 'Oui' }, { value: 0, label: 'Non' }] },
+    { name: 'actif', label: 'Actif', required: true, type: 'select', options: [{ value: 1, label: 'Oui' }, { value: 0, label: 'Non' }] },
   ];
 
   return (

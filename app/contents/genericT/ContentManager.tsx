@@ -35,11 +35,7 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U extends 
     isFormOpen: boolean;
     isDeleteOpen: boolean;
     currentItem: T | null;
-    notification: {
-      open: boolean;
-      message: string;
-      severity: 'success' | 'error' | 'warning' | 'info';
-    };
+    notification: { open: boolean; message: string; severity: 'success' | 'error' | 'warning' | 'info'; };
   }>({
     isFormOpen: false,
     isDeleteOpen: false,
@@ -70,8 +66,7 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U extends 
   };
 
   const createMutation = useMutation({
-    mutationFn: (newData: U) =>
-      mutationHandler('POST', contentType, newData as unknown as Partial<T>),
+    mutationFn: (newData: U) => mutationHandler('POST', contentType, newData as unknown as Partial<T>),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [contentType] });
       setState((prev) => ({ ...prev, isFormOpen: false }));
@@ -81,12 +76,7 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U extends 
   });
 
   const updateMutation = useMutation({
-    mutationFn: (updatedData: U & { id: number }) =>
-      mutationHandler(
-        'PUT',
-        `${contentType}/${updatedData.id}`,
-        updatedData as unknown as Partial<T>,
-      ),
+    mutationFn: (updatedData: U & { id: number }) => mutationHandler('PUT', `${contentType}/${updatedData.id}`, updatedData as unknown as Partial<T>),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [contentType] });
       setState((prev) => ({ ...prev, isFormOpen: false }));
@@ -113,11 +103,7 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U extends 
       ...data,
       days: data.days || [],
       image: data.image || '',
-      time: data.time ? new Date(`1970-01-01T${data.time}`).toLocaleTimeString('fr-FR', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: false 
-      }) : '',
+      time: data.time ? new Date(`1970-01-01T${data.time}`).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
       createdAt: currentItem?.createdAt || new Date().toISOString().split('T')[0],
       updatedAt: new Date().toISOString().split('T')[0]
     } as U;
