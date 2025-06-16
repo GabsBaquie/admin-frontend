@@ -8,14 +8,23 @@ import Notification from '@/app/components/Notification';
 import { Column, Field } from '@/app/types/content';
 import { fetchWithAuth } from '@/app/utils/fetchWithAuth';
 
-interface ContentManagerProps<T, U> {
+interface BaseContent {
+  id?: number;
+  days?: number[];
+  image?: string;
+  time?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface ContentManagerProps<T extends { id: number; createdAt?: string }, U extends BaseContent> {
   contentType: string;
   columns: Column<T>[];
-  fields: Field<T>[];
+  fields: Field<U>[];
   transformData?: (data: T) => U;
 }
 
-const ContentManager = <T extends { id: number; title: string }, U>({
+const ContentManager = <T extends { id: number; createdAt?: string }, U extends BaseContent>({
   contentType,
   columns,
   fields,
@@ -50,6 +59,9 @@ const ContentManager = <T extends { id: number; title: string }, U>({
   });
 
   const mutationHandler = (method: 'POST' | 'PUT' | 'DELETE', url: string, payload?: Partial<T> | U) => {
+    if (payload) {
+      console.log('Sending data to backend:', JSON.stringify(payload, null, 2));
+    }
     return fetchWithAuth<T | void>(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -58,8 +70,8 @@ const ContentManager = <T extends { id: number; title: string }, U>({
   };
 
   const createMutation = useMutation({
-    mutationFn: (newData: T) =>
-      mutationHandler('POST', contentType, transformData ? (transformData(newData) as Partial<T>) : newData),
+    mutationFn: (newData: U) =>
+      mutationHandler('POST', contentType, newData as unknown as Partial<T>),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [contentType] });
       setState((prev) => ({ ...prev, isFormOpen: false }));
@@ -69,11 +81,11 @@ const ContentManager = <T extends { id: number; title: string }, U>({
   });
 
   const updateMutation = useMutation({
-    mutationFn: (updatedData: T) =>
+    mutationFn: (updatedData: U & { id: number }) =>
       mutationHandler(
         'PUT',
         `${contentType}/${updatedData.id}`,
-        transformData ? (transformData(updatedData) as Partial<T>) : updatedData,
+        updatedData as unknown as Partial<T>,
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [contentType] });
@@ -96,11 +108,28 @@ const ContentManager = <T extends { id: number; title: string }, U>({
   const handleEdit = (item: T) => setState((prev) => ({ ...prev, currentItem: item, isFormOpen: true }));
   const handleDelete = (item: T) => setState((prev) => ({ ...prev, currentItem: item, isDeleteOpen: true }));
 
-  const handleFormSubmit = (data: Partial<T>) => {
+  const handleSubmit = (data: Partial<U>) => {
+    const transformedData = {
+      ...data,
+      days: data.days || [],
+      image: data.image || '',
+      time: data.time ? new Date(`1970-01-01T${data.time}`).toLocaleTimeString('fr-FR', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      }) : '',
+      createdAt: currentItem?.createdAt || new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString().split('T')[0]
+    } as U;
+
+    console.log('Form data before transformation:', data);
+    console.log('Transformed data:', transformedData);
+
     if (currentItem) {
-      updateMutation.mutate({ ...currentItem, ...data } as T);
+      const updatedData = { ...transformedData, id: currentItem.id } as U & { id: number };
+      updateMutation.mutate(updatedData);
     } else {
-      createMutation.mutate(data as T);
+      createMutation.mutate(transformedData);
     }
   };
 
@@ -133,17 +162,21 @@ const ContentManager = <T extends { id: number; title: string }, U>({
       )}
       <FormModal
         open={isFormOpen}
-        onClose={() => setState((prev) => ({ ...prev, isFormOpen: false }))}
-        onSubmit={handleFormSubmit}
-        initialData={currentItem || undefined}
+        onClose={() => {
+          setState((prev) => ({ ...prev, isFormOpen: false }));
+          setState((prev) => ({ ...prev, currentItem: null }));
+        }}
+        onSubmit={handleSubmit}
+        initialData={currentItem && transformData ? transformData(currentItem) : undefined}
         title={currentItem ? `Modifier ${contentType.slice(0, -1)}` : `Créer ${contentType.slice(0, -1)}`}
         fields={fields}
+        mode={currentItem ? 'edit' : 'create'}
       />
       <DeleteConfirmation
         open={isDeleteOpen}
         onClose={() => setState((prev) => ({ ...prev, isDeleteOpen: false }))}
         onConfirm={handleConfirmDelete}
-        itemName={currentItem ? currentItem.title || `ID: ${currentItem.id}` : ''}
+        itemName={currentItem ? (currentItem as unknown as { title?: string }).title || `ID: ${currentItem.id}` : ''}
       />
       <Notification
         open={notification.open}

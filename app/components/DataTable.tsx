@@ -1,8 +1,4 @@
-// app/components/DataTable.tsx
 // Le DataTable affichera une liste de contenus avec des fonctionnalités avancées telles que la pagination, le tri et le filtrage.
-
-// app/components/DataTable.tsx
-
 import React, { useState } from "react";
 import {
   Table,
@@ -20,7 +16,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 interface DataTableProps<T extends { id: number }> {
-  columns: { id: keyof T; label: string }[];
+  columns: { 
+    id: keyof T; 
+    label: string;
+    render?: (row: T) => React.ReactNode;
+  }[];
   data: T[];
   onEdit: (item: T) => void;
   onDelete: (item: T) => void;
@@ -63,10 +63,10 @@ const DataTable = <T extends { id: number }>({
   onEdit,
   onDelete,
 }: DataTableProps<T>) => {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<keyof T>("id");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleRequestSort = (property: keyof T) => {
     const isAsc = orderBy === property && order === "asc";

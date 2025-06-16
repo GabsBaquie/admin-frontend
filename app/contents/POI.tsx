@@ -1,8 +1,7 @@
-// frontend/src/components/POIsManager.tsx
-
 import React from 'react';
 import { POI } from '@/app/types/POI';
 import ContentManager from '@/app/contents/genericT/ContentManager';
+import { Field } from '@/app/types/content';
 
 const POIsManager: React.FC = () => {
   const contentType = 'pois';
@@ -15,32 +14,16 @@ const POIsManager: React.FC = () => {
     { id: 'createdAt' as keyof POI, label: 'Créé le' },
     { id: 'updatedAt' as keyof POI, label: 'Mis à Jour le' },
   ];
-  const fields = [
-    { name: 'title' as keyof POI, label: 'Nom', required: true },
-    { name: 'type' as keyof POI, label: 'Type', required: true },
-    {
-      name: 'latitude' as keyof POI,
-      label: 'Latitude',
-      required: true,
-      type: 'number',
-    },
-    {
-      name: 'longitude' as keyof POI,
-      label: 'Longitude',
-      required: true,
-      type: 'number',
-    },
-    {
-      name: 'description' as keyof POI,
-      label: 'Description',
-      required: false,
-      type: 'textarea',
-    },
-    // Ajoutez d'autres champs si nécessaire
+  const fields: Field<POI>[] = [
+    { name: 'title', label: 'Nom', required: true, type: 'text' },
+    { name: 'category', label: 'Catégorie', required: true, type: 'text' },
+    { name: 'latitude', label: 'Latitude', required: true, type: 'text' },
+    { name: 'longitude', label: 'Longitude', required: true, type: 'text' },
+    { name: 'description', label: 'Description', required: false, type: 'textarea' },
   ];
 
   return (
-    <ContentManager
+    <ContentManager<POI, POI>
       contentType={contentType}
       columns={columns}
       fields={fields}

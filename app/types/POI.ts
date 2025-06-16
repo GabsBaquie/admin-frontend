@@ -1,5 +1,5 @@
 export type POI = {
-  id: string;
+  id: number;
   title: string;
   description: string;
   latitude: number;

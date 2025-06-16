@@ -1,8 +1,7 @@
-// frontend/src/components/SecurityInfosManager.tsx
-
 import ContentManager from '@/app/contents/genericT/ContentManager';
 import { SecurityInfo } from '@/app/types/SecurityInfo';
 import React from 'react';
+import { Field } from '@/app/types/content';
 
 const SecurityInfosManager: React.FC = () => {
   const contentType = 'securityInfos';
@@ -14,39 +13,21 @@ const SecurityInfosManager: React.FC = () => {
     { id: 'createdAt' as keyof SecurityInfo, label: 'Créé le' },
     { id: 'updatedAt' as keyof SecurityInfo, label: 'Mis à Jour le' },
   ];
-  const fields = [
-    { name: 'title' as keyof SecurityInfo, label: 'Titre', required: true },
-    {
-      name: 'description' as keyof SecurityInfo,
-      label: 'Description',
-      required: true,
-      type: 'textarea',
-    },
-    {
-      name: 'urgence' as keyof SecurityInfo,
-      label: 'Urgence',
-      required: true,
-      type: 'select',
-      options: [
-        { value: 1, label: 'Oui' },
-        { value: 0, label: 'Non' },
-      ],
-    },
-    {
-      name: 'actif' as keyof SecurityInfo,
-      label: 'Actif',
-      required: true,
-      type: 'select',
-      options: [
-        { value: 1, label: 'Oui' },
-        { value: 0, label: 'Non' },
-      ],
-    },
-    // Ajoutez d'autres champs si nécessaire
+  const fields: Field<SecurityInfo>[] = [
+    { name: 'title', label: 'Titre', required: true, type: 'text' },
+    { name: 'description', label: 'Description', required: true, type: 'textarea' },
+    { name: 'urgence', label: 'Urgence', required: true, type: 'select', options: [
+      { value: 1, label: 'Oui' },
+      { value: 0, label: 'Non' },
+    ] },
+    { name: 'actif', label: 'Actif', required: true, type: 'select', options: [
+      { value: 1, label: 'Oui' },
+      { value: 0, label: 'Non' },
+    ] },
   ];
 
   return (
-    <ContentManager
+    <ContentManager<SecurityInfo, SecurityInfo>
       contentType={contentType}
       columns={columns}
       fields={fields}
