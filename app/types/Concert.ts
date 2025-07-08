@@ -14,3 +14,13 @@ export type Concert = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type ConcertCreatePayload = {
+  title: string;
+  description: string;
+  performer: string;
+  time: string;
+  location: string;
+  image?: string;
+  dayIds: number[];
+};
