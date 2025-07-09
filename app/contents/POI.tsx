@@ -11,10 +11,12 @@ const POIsManager: React.FC = () => {
   const contentType = "pois";
   const columns = [
     { id: "title" as keyof POI, label: "Nom" },
-    { id: "category" as keyof POI, label: "Catégorie" },
+    { id: "type" as keyof POI, label: "Type" },
     { id: "latitude" as keyof POI, label: "Latitude" },
     { id: "longitude" as keyof POI, label: "Longitude" },
     { id: "description" as keyof POI, label: "Description" },
+    { id: "category" as keyof POI, label: "Catégorie" },
+    { id: "address" as keyof POI, label: "Adresse" },
   ];
   const fields: Field<PoiPayload>[] = [
     { name: "title", label: "Nom", required: true, type: "text" },

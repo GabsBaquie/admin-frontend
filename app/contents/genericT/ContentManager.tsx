@@ -15,6 +15,18 @@ interface ContentManagerProps<T extends { id: number; createdAt?: string }, U> {
   transformData?: (data: T) => U;
 }
 
+// Helper pour omettre des clés d'un objet
+function omitKeys<T extends object, K extends keyof T>(
+  obj: T,
+  keys: K[]
+): Omit<T, K> {
+  const clone = { ...obj };
+  keys.forEach((key) => {
+    delete clone[key];
+  });
+  return clone;
+}
+
 const ContentManager = <T extends { id: number; createdAt?: string }, U>({
   contentType,
   columns,
@@ -84,12 +96,9 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U>({
   });
 
   const updateMutation = useMutation({
-    mutationFn: (updatedData: U & { id: number }) =>
-      mutationHandler(
-        "PUT",
-        `${contentType}/${updatedData.id}`,
-        updatedData as unknown as Partial<T>
-      ),
+    mutationFn: (updatedData: U) =>
+      // On récupère l'id depuis currentItem pour l'URL, pas dans le payload
+      mutationHandler("PUT", `${contentType}/${currentItem?.id}`, updatedData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [contentType] });
       setState((prev) => ({ ...prev, isFormOpen: false }));
@@ -122,23 +131,26 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U>({
   const handleDelete = (item: T) =>
     setState((prev) => ({ ...prev, currentItem: item, isDeleteOpen: true }));
 
+  // handleSubmit reçoit maintenant un payload propre (U)
   const handleSubmit = (data: Partial<U>) => {
     if (!transformData) {
       throw new Error(
         "Vous devez fournir une fonction transformData pour nettoyer le payload avant l'envoi au backend."
       );
     }
-    const transformedData = transformData(data as T);
-
-    console.log("Form data before transformation:", data);
-    console.log("Transformed data:", transformedData);
-
+    // Toujours appliquer transformData pour convertir les types (ex: string -> number)
+    const payload = transformData(data as any);
+    // On filtre les champs interdits
+    const cleanPayload = omitKeys(payload, [
+      "id",
+      "createdAt",
+      "updatedAt",
+    ] as (keyof U)[]);
+    console.log("Payload envoyé au backend :", cleanPayload);
     if (currentItem) {
-      updateMutation.mutate({ ...transformedData, id: currentItem.id } as U & {
-        id: number;
-      });
+      updateMutation.mutate(cleanPayload as U);
     } else {
-      createMutation.mutate(transformedData);
+      createMutation.mutate(cleanPayload as U);
     }
   };
 
@@ -186,6 +198,7 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U>({
           onDelete={handleDelete}
         />
       )}
+      {/* FormModal reçoit initialData déjà transformé (T -> U) */}
       <FormModal
         open={isFormOpen}
         onClose={() => {
@@ -194,7 +207,15 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U>({
         }}
         onSubmit={handleSubmit}
         initialData={
-          currentItem && transformData ? transformData(currentItem) : undefined
+          currentItem && transformData
+            ? transformData(
+                omitKeys(currentItem, [
+                  "id",
+                  "createdAt",
+                  "updatedAt",
+                ] as (keyof T)[])
+              )
+            : undefined
         }
         title={
           currentItem
