@@ -116,14 +116,9 @@ const FormModal = <T extends WithImage>({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 || mode === "edit") {
-      // Si une nouvelle image a été sélectionnée, on la convertit en base64
+      // Si une nouvelle image a été sélectionnée, on passe le File directement
       if (selectedImage) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64String = reader.result as string;
-          onSubmit({ ...formData, image: base64String });
-        };
-        reader.readAsDataURL(selectedImage);
+        onSubmit({ ...formData, image: selectedImage } as Partial<T>);
       } else {
         onSubmit(formData);
       }

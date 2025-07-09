@@ -142,7 +142,8 @@ const ContentManager = <
       );
     }
     // Toujours appliquer transformData pour convertir les types (ex: string -> number)
-    const payload = transformData(data as any);
+    // On caste data en T via unknown pour satisfaire TypeScript
+    const payload = transformData(data as unknown as T);
     // On filtre les champs interdits
     const cleanPayload = omitKeys(payload, [
       "id",
@@ -217,7 +218,7 @@ const ContentManager = <
                   "createdAt",
                   "updatedAt",
                   "name",
-                ] as (keyof T)[])
+                ] as (keyof T)[]) as unknown as T
               )
             : undefined
         }

@@ -1,3 +1,5 @@
+import type { Concert } from "@/app/types/Concert";
+
 export type ConcertPayload = {
   title: string;
   description: string;
@@ -8,7 +10,7 @@ export type ConcertPayload = {
   dayIds: number[];
 };
 
-export const transformConcertToPayload = (concert: any): ConcertPayload => {
+export const transformConcertToPayload = (concert: Concert): ConcertPayload => {
   const payload = {
     title: concert.title,
     description: concert.description,
@@ -17,9 +19,9 @@ export const transformConcertToPayload = (concert: any): ConcertPayload => {
     location: concert.location,
     image: concert.image ?? "",
     dayIds:
-      concert.dayIds ??
-      concert.days?.filter(Boolean).map((day: any) => day.id) ??
-      [],
+      concert.days
+        ?.filter((day) => typeof day.id === "number")
+        .map((day) => day.id) ?? [],
   };
   console.log("Payload transformConcertToPayload:", payload);
   return payload;

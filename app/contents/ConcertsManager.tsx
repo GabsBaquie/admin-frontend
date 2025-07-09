@@ -54,7 +54,11 @@ const ConcertsManager: React.FC = () => {
       },
     },
     { id: "location", label: "Lieu" },
-    { id: "image", label: "Image" },
+    {
+      id: "image",
+      label: "Image",
+      render: (row: Concert) => (row.image ? "true" : "false"),
+    },
     {
       id: "days",
       label: "Jours",

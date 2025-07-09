@@ -9,6 +9,9 @@ export type DayCreateOrUpdatePayload = {
 export const transformDayToPayload = (day: Day): DayCreateOrUpdatePayload => ({
   title: day.title,
   date: day.date,
-  concertIds:
-    day.concerts?.map((concert) => concert.id) ?? day.concertIds ?? [],
+  concertIds: Array.isArray(day.concerts)
+    ? day.concerts
+        .filter((concert) => typeof concert.id === "number")
+        .map((concert) => concert.id)
+    : day.concertIds ?? [],
 });
