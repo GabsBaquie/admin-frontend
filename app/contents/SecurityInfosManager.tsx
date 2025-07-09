@@ -10,11 +10,11 @@ type SecurityInfoPayload = {
   actif: boolean;
 };
 
-const transformSecurityInfoToPayload = (data: SecurityInfo) => ({
-  title: data.title,
-  description: data.description,
-  urgence: String(data.urgence) === "true",
-  actif: String(data.actif) === "true",
+const transformSecurityInfoToPayload = (data: Partial<SecurityInfo>) => ({
+  title: data.title ?? "",
+  description: data.description ?? "",
+  urgence: String(data.urgence) === "true" || data.urgence === true,
+  actif: String(data.actif) === "true" || data.actif === true,
 });
 
 const SecurityInfosManager: React.FC = () => {

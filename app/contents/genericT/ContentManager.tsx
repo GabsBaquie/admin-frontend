@@ -27,7 +27,10 @@ function omitKeys<T extends object, K extends keyof T>(
   return clone;
 }
 
-const ContentManager = <T extends { id: number; createdAt?: string }, U>({
+const ContentManager = <
+  T extends { id: number; createdAt?: string },
+  U extends object
+>({
   contentType,
   columns,
   fields,
@@ -213,6 +216,7 @@ const ContentManager = <T extends { id: number; createdAt?: string }, U>({
                   "id",
                   "createdAt",
                   "updatedAt",
+                  "name",
                 ] as (keyof T)[])
               )
             : undefined
