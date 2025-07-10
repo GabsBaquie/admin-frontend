@@ -12,118 +12,86 @@ export const fetchWithAuth = async <T>(
   options: RequestInit = {},
   requireAuth: boolean = true // Indique si la requête nécessite une authentification
 ): Promise<T> => {
-  const url = `${API_BASE_URL}/${endpoint}`;
+  // Nettoie les doubles slashes dans l'URL (sauf après http(s):)
+  const url = `${API_BASE_URL.replace(/\/+$/, "")}/${endpoint.replace(
+    /^\/+/,
+    ""
+  )}`.replace(/([^:]\/)\/+/, "$1/");
 
+  // Récupère le token AVANT de construire les headers
   let token: string | null = null;
-
   if (requireAuth) {
-    // Récupérer le token depuis le localStorage
     token = localStorage.getItem("token");
-
-    // Log pour vérifier si le token est bien récupéré
-    console.log("Token utilisé dans fetchWithAuth:", token);
-
-    if (!token) {
-      console.error("Token manquant. Redirection vers la page de connexion.");
-      throw new Error("Non autorisé - Token manquant");
-    }
-
-    // Vérifier si le token est expiré
-    const checkTokenValidity = (token: string): boolean => {
-      try {
-        const decodedToken = jwtDecode<DecodedToken>(token);
-        const currentTime = Date.now() / 1000; // Convertir en secondes
-        return decodedToken.exp > currentTime; // Retourne true si le token est encore valide
-      } catch (error) {
-        console.error("Erreur lors de la vérification du token :", error);
-        return false;
+    if (!token) throw new Error("Non autorisé - Token manquant");
+    // Vérifie la validité du token
+    try {
+      const decodedToken = jwtDecode<DecodedToken>(token);
+      const currentTime = Date.now() / 1000;
+      if (decodedToken.exp <= currentTime) {
+        localStorage.removeItem("token");
+        throw new Error("Non autorisé - Token expiré");
       }
-    };
-
-    if (!checkTokenValidity(token)) {
-      console.error("Token expiré. Redirection vers la page de connexion.");
-      localStorage.removeItem("token"); // Supprimer le token expiré
-      throw new Error("Non autorisé - Token expiré");
+    } catch {
+      localStorage.removeItem("token");
+      throw new Error("Non autorisé - Token invalide");
     }
   }
 
-  // Gestion du body pour FormData si image est un fichier
-  let bodyToSend = options.body;
+  // Construit les headers
   const headers: Record<string, string> = {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers as Record<string, string>),
   };
 
+  // Prépare le body
+  let bodyToSend = options.body;
   if (
     bodyToSend &&
     typeof bodyToSend === "object" &&
-    "image" in bodyToSend &&
-    bodyToSend.image instanceof File
+    !(bodyToSend instanceof FormData)
   ) {
-    const formData = new FormData();
-    Object.entries(bodyToSend).forEach(([key, value]) => {
-      if (value instanceof File) {
-        formData.append(key, value);
-      } else if (Array.isArray(value)) {
-        value.forEach((v) => formData.append(key, v));
-      } else if (value !== undefined && value !== null) {
-        formData.append(key, value as string);
-      }
-    });
-    bodyToSend = formData;
-    // Ne pas définir Content-Type, le navigateur le gère pour FormData
-    delete headers["Content-Type"];
-  } else if (bodyToSend && typeof bodyToSend === "object") {
     bodyToSend = JSON.stringify(bodyToSend);
     headers["Content-Type"] = "application/json";
   }
+  // Si FormData, ne pas mettre Content-Type (le navigateur le gère)
+  if (bodyToSend instanceof FormData) {
+    delete headers["Content-Type"];
+  }
 
-  // Inclure les cookies si nécessaire
+  // Prépare les options du fetch
   const fetchOptions: RequestInit = {
     ...options,
     headers,
-    credentials: "include", // Ajoute cette ligne si votre API nécessite les cookies
     body: bodyToSend,
+    // credentials: "include", // Active-le si tu utilises des cookies de session
   };
 
+  // (Suppression des logs de debug)
+
   try {
-    console.log(`Request URL: ${url}`); // Log de l'URL utilisée
-    console.log(`Request Headers:`, headers); // Log des en-têtes
-    console.log(`Request Options:`, fetchOptions); // Log des options
-
     const response = await fetch(url, fetchOptions);
-
-    // Gérer les erreurs de statut
     if (!response.ok) {
-      let errorMessage = "Erreur lors de la requête.";
-      const contentType = response.headers.get("Content-Type");
-
-      if (contentType && contentType.includes("application/json")) {
+      let errorMessage = `Erreur HTTP ${response.status}`;
+      try {
         const errorData = await response.json();
         errorMessage = errorData.message || errorMessage;
-      } else {
-        const errorText = await response.text();
-        console.error("Unexpected response format:", errorText);
-        errorMessage = `Unexpected response format: ${errorText}`;
-      }
-
-      if (response.status === 401 && requireAuth) {
-        console.error("Non autorisé - Token invalide ou expiré.");
-        throw new Error("Non autorisé - Token invalide ou expiré");
-      }
-
+      } catch {}
       throw new Error(errorMessage);
     }
-
     if (response.status === 204) {
       return null as unknown as T;
     }
-
-    const data = await response.json();
-    console.log("Response Data:", data); // Log de la réponse
-    return data as T;
+    try {
+      const data = await response.json();
+      return data as T;
+    } catch {
+      throw new Error("Réponse non JSON du serveur");
+    }
   } catch (error) {
-    console.error("FetchWithAuth error:", error);
-    throw error;
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Erreur réseau inconnue");
+    }
   }
 };

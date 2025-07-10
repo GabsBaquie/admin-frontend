@@ -1,15 +1,15 @@
 // app/context/AuthContext.tsx
 
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
+import jwtDecode from "jwt-decode"; // Import par défaut
 import { useRouter } from "next/navigation";
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useEffect,
   useState,
-  useCallback,
 } from "react";
-import jwtDecode from "jwt-decode"; // Import par défaut
-import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 interface AuthContextProps {
   token: string | null;
@@ -86,9 +86,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     async (email: string, password: string) => {
       try {
         const response = await fetchWithAuth<LoginResponse>(
-          "/auth/login",
+          "auth/login",
           {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
           },
           false // Passe false pour ne pas exiger de token
