@@ -54,23 +54,32 @@ const ConcertsManager: React.FC = () => {
     {
       id: "image",
       label: "Image",
-      render: (row: Concert) =>
-        row.image ? (
-          typeof row.image === "string" ? (
-            <img
-              src={
-                row.image.startsWith("data:")
-                  ? row.image
-                  : `data:image/jpeg;base64,${row.image}`
-              }
-              alt="aperçu"
-              style={{ maxWidth: 60, maxHeight: 60, borderRadius: 4 }}
-              loading="lazy"
-            />
-          ) : (
-            "[image]"
-          )
-        ) : null,
+      render: (row: Concert) => {
+        // On vérifie que row.image est bien une string non vide
+        if (typeof row.image !== "string" || !row.image) return null;
+
+        let imageUrl = row.image;
+        if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
+          imageUrl = `http://localhost:8081${imageUrl}`;
+        }
+
+        return (
+          <img
+            src={imageUrl}
+            alt="aperçu"
+            style={{
+              maxWidth: 60,
+              maxHeight: 60,
+              borderRadius: 4,
+              background: "#eee",
+            }}
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        );
+      },
     },
     {
       id: "days",

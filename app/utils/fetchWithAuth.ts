@@ -55,7 +55,12 @@ export const fetchWithAuth = async <T>(
   }
   // Si FormData, ne pas mettre Content-Type (le navigateur le gère)
   if (bodyToSend instanceof FormData) {
-    delete headers["Content-Type"];
+    // Supprime Content-Type même si passé dans options.headers
+    Object.keys(headers).forEach((key) => {
+      if (key.toLowerCase() === "content-type") {
+        delete headers[key];
+      }
+    });
   }
 
   // Prépare les options du fetch

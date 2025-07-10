@@ -9,18 +9,18 @@ import {
   InputLabel,
   MenuItem,
   Modal,
+  Modal as MuiModal,
   Paper,
   Select,
   TextField,
   Typography,
 } from "@mui/material";
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 interface FormModalProps<T> {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: Partial<T>) => void;
+  onSubmit: (data: Partial<T>, imageFile?: File) => void;
   title: string;
   fields: Field<T>[];
   initialData?: Partial<T>;
@@ -42,8 +42,21 @@ const FormModal = <T extends WithImage>({
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData || {});
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [serverImages, setServerImages] = useState<string[]>([]);
+  const [showImageSelector, setShowImageSelector] = useState(false);
+
+  // Récupère la liste des images du serveur
+  const fetchServerImages = async () => {
+    try {
+      const res = await fetch("http://localhost:8081/api/images/list");
+      const images = await res.json();
+      setServerImages(images);
+    } catch {
+      alert("Erreur lors de la récupération des images du serveur");
+    }
+  };
 
   useEffect(() => {
     if (open && initialData) {
@@ -84,9 +97,23 @@ const FormModal = <T extends WithImage>({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Vérifier la taille du fichier (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("L'image ne doit pas dépasser 5MB");
+        return;
+      }
+
+      // Vérifier le type de fichier
+      if (!file.type.startsWith("image/")) {
+        alert("Veuillez sélectionner un fichier image valide");
+        return;
+      }
+
+      setSelectedImageFile(file);
+
+      // Créer une preview
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageBase64(reader.result as string); // data:image/png;base64,...
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
@@ -115,7 +142,10 @@ const FormModal = <T extends WithImage>({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 || mode === "edit") {
-      onSubmit({ ...formData, image: imageBase64 ?? undefined } as Partial<T>);
+      // On enlève le champ image des données du formulaire
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { image, ...dataWithoutImage } = formData;
+      onSubmit(dataWithoutImage as Partial<T>, selectedImageFile || undefined);
     }
   };
 
@@ -207,21 +237,101 @@ const FormModal = <T extends WithImage>({
               Choisir une image
             </Button>
           </label>
+          <Button
+            variant="outlined"
+            sx={{ ml: 2, mb: 2 }}
+            onClick={async () => {
+              await fetchServerImages();
+              setShowImageSelector(true);
+            }}
+          >
+            Choisir une image du serveur
+          </Button>
+          {selectedImageFile && (
+            <Typography variant="caption" display="block" sx={{ mb: 1 }}>
+              Fichier sélectionné : {selectedImageFile.name} (
+              {(selectedImageFile.size / 1024 / 1024).toFixed(2)} MB)
+            </Typography>
+          )}
           {imagePreview && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
-              <Image
-                src={imagePreview}
-                alt="Preview"
-                width={200}
-                height={200}
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "200px",
-                  objectFit: "contain",
+              {(() => {
+                let previewUrl = imagePreview;
+                if (
+                  typeof previewUrl === "string" &&
+                  !previewUrl.startsWith("http") &&
+                  !previewUrl.startsWith("data:")
+                ) {
+                  previewUrl = `http://localhost:8081${previewUrl}`;
+                }
+                return (
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "200px",
+                      objectFit: "contain",
+                      borderRadius: 8,
+                      background: "#eee",
+                    }}
+                  />
+                );
+              })()}
+              <Button
+                variant="outlined"
+                color="error"
+                sx={{ mt: 1 }}
+                onClick={() => {
+                  setImagePreview(null);
+                  setSelectedImageFile(null);
+                  setFormData((prev) => ({ ...prev, image: undefined }));
                 }}
-              />
+              >
+                Supprimer l’image
+              </Button>
             </Box>
           )}
+          {/* Modal de sélection d'image serveur */}
+          <MuiModal
+            open={showImageSelector}
+            onClose={() => setShowImageSelector(false)}
+          >
+            <Box
+              sx={{
+                p: 3,
+                bgcolor: "#fff",
+                borderRadius: 2,
+                maxWidth: 400,
+                mx: "auto",
+                my: 8,
+              }}
+            >
+              <Typography variant="h6">Images disponibles</Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2 }}>
+                {serverImages.map((img) => (
+                  <img
+                    key={img}
+                    src={`http://localhost:8081${img}`}
+                    alt={img}
+                    style={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "cover",
+                      cursor: "pointer",
+                      border: "2px solid #eee",
+                    }}
+                    onClick={() => {
+                      setImagePreview(`http://localhost:8081${img}`);
+                      setFormData((prev) => ({ ...prev, image: img }));
+                      setSelectedImageFile(null);
+                      setShowImageSelector(false);
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          </MuiModal>
         </Box>
       );
     }
