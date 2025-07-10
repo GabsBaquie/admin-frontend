@@ -263,7 +263,7 @@ const FormModal = <T extends WithImage>({
                   !previewUrl.startsWith("http") &&
                   !previewUrl.startsWith("data:")
                 ) {
-                  previewUrl = `http://localhost:8081${previewUrl}`;
+                  previewUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}${previewUrl}`;
                 }
                 return (
                   <img
@@ -286,7 +286,7 @@ const FormModal = <T extends WithImage>({
                 onClick={() => {
                   setImagePreview(null);
                   setSelectedImageFile(null);
-                  setFormData((prev) => ({ ...prev, image: undefined }));
+                  setFormData((prev) => ({ ...prev, image: null }));
                 }}
               >
                 Supprimer l’image
@@ -313,7 +313,11 @@ const FormModal = <T extends WithImage>({
                 {serverImages.map((img) => (
                   <img
                     key={img}
-                    src={`http://localhost:8081${img}`}
+                    src={
+                      img.startsWith("http")
+                        ? img
+                        : `${process.env.NEXT_PUBLIC_ASSETS_URL}${img}`
+                    }
                     alt={img}
                     style={{
                       width: 80,
@@ -323,7 +327,7 @@ const FormModal = <T extends WithImage>({
                       border: "2px solid #eee",
                     }}
                     onClick={() => {
-                      setImagePreview(`http://localhost:8081${img}`);
+                      setImagePreview(img.startsWith("http") ? img : `${img}`);
                       setFormData((prev) => ({ ...prev, image: img }));
                       setSelectedImageFile(null);
                       setShowImageSelector(false);

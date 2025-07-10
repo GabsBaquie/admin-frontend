@@ -60,7 +60,7 @@ const ConcertsManager: React.FC = () => {
 
         let imageUrl = row.image;
         if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
-          imageUrl = `http://localhost:8081${imageUrl}`;
+          imageUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}${imageUrl}`;
         }
 
         return (

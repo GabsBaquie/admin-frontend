@@ -6,7 +6,7 @@ export type ConcertPayload = {
   performer: string;
   time: string;
   location: string;
-  image?: string; // Maintenant c'est l'URL de l'image uploadée
+  image?: string | null; // Peut être null pour suppression
   dayIds: number[];
 };
 
@@ -21,16 +21,14 @@ export const transformConcertToPayload = (concert: Concert): ConcertPayload => {
       concert.days
         ?.filter((day) => typeof day.id === "number")
         .map((day) => day.id) ?? [],
+    // Ajout explicite du champ image, même s'il vaut null
+    image:
+      typeof concert.image === "string" &&
+      concert.image &&
+      !concert.image.startsWith("data:")
+        ? concert.image
+        : null,
   };
-
-  // On n'ajoute image que si c'est une URL valide (pas base64)
-  if (
-    typeof concert.image === "string" &&
-    concert.image &&
-    !concert.image.startsWith("data:")
-  ) {
-    payload.image = concert.image;
-  }
 
   console.log("Payload transformConcertToPayload:", payload);
   return payload as ConcertPayload;
