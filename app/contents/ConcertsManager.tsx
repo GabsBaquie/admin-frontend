@@ -26,12 +26,10 @@ const ConcertsManager: React.FC = () => {
       try {
         const response = await fetchWithAuth<Day[]>("days");
         setDays(response);
-      } catch (error) {
-        console.error("Error fetching days:", error);
+      } catch {
         showToast("Erreur lors du chargement des jours", "error");
       }
     };
-
     fetchDays();
   }, [showToast]);
 
@@ -47,8 +45,7 @@ const ConcertsManager: React.FC = () => {
         try {
           const [hours, minutes] = row.time.split(":");
           return `${hours}:${minutes}`;
-        } catch (error) {
-          console.error("Error parsing time:", error);
+        } catch {
           return row.time;
         }
       },
