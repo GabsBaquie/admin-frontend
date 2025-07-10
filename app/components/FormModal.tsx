@@ -50,7 +50,7 @@ const FormModal = <T extends WithImage>({
   // Récupère la liste des images du serveur
   const fetchServerImages = async () => {
     try {
-      const res = await fetch("http://localhost:8081/api/images/list");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/list`);
       const images = await res.json();
       setServerImages(images);
     } catch {
@@ -63,8 +63,12 @@ const FormModal = <T extends WithImage>({
       setFormData(initialData);
       // Si une image existe déjà, on la met en preview
       if (initialData.image) {
+        // Si l'image est déjà une URL complète, on la garde, sinon on la complète
         setImagePreview(initialData.image);
+      } else {
+        setImagePreview(null);
       }
+      setSelectedImageFile(null);
     }
   }, [open, initialData]);
 
