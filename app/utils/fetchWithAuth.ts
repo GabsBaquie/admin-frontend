@@ -1,7 +1,7 @@
 // app/utils/fetchWithAuth.ts
 
-import { API_BASE_URL } from "./api"; // Importer la base URL
 import jwtDecode from "jwt-decode"; // Import par défaut pour version 3.x
+import { API_BASE_URL } from "./api"; // Importer la base URL
 
 interface DecodedToken {
   exp: number;
@@ -47,18 +47,43 @@ export const fetchWithAuth = async <T>(
     }
   }
 
-  // Configurer les en-têtes
-  const headers = {
-    "Content-Type": "application/json",
+  // Gestion du body pour FormData si image est un fichier
+  let bodyToSend = options.body;
+  const headers: Record<string, string> = {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
+
+  if (
+    bodyToSend &&
+    typeof bodyToSend === "object" &&
+    "image" in bodyToSend &&
+    bodyToSend.image instanceof File
+  ) {
+    const formData = new FormData();
+    Object.entries(bodyToSend).forEach(([key, value]) => {
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else if (Array.isArray(value)) {
+        value.forEach((v) => formData.append(key, v));
+      } else if (value !== undefined && value !== null) {
+        formData.append(key, value as string);
+      }
+    });
+    bodyToSend = formData;
+    // Ne pas définir Content-Type, le navigateur le gère pour FormData
+    delete headers["Content-Type"];
+  } else if (bodyToSend && typeof bodyToSend === "object") {
+    bodyToSend = JSON.stringify(bodyToSend);
+    headers["Content-Type"] = "application/json";
+  }
 
   // Inclure les cookies si nécessaire
   const fetchOptions: RequestInit = {
     ...options,
     headers,
     credentials: "include", // Ajoute cette ligne si votre API nécessite les cookies
+    body: bodyToSend,
   };
 
   try {
