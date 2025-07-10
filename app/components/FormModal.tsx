@@ -42,7 +42,7 @@ const FormModal = <T extends WithImage>({
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData || {});
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
@@ -84,10 +84,9 @@ const FormModal = <T extends WithImage>({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setSelectedImage(file);
-      // Créer une URL pour la preview
       const reader = new FileReader();
       reader.onloadend = () => {
+        setImageBase64(reader.result as string); // data:image/png;base64,...
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
@@ -116,12 +115,7 @@ const FormModal = <T extends WithImage>({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 || mode === "edit") {
-      // Si une nouvelle image a été sélectionnée, on passe le File directement
-      if (selectedImage) {
-        onSubmit({ ...formData, image: selectedImage } as Partial<T>);
-      } else {
-        onSubmit(formData);
-      }
+      onSubmit({ ...formData, image: imageBase64 ?? undefined } as Partial<T>);
     }
   };
 

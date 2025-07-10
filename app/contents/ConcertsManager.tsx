@@ -54,7 +54,23 @@ const ConcertsManager: React.FC = () => {
     {
       id: "image",
       label: "Image",
-      render: (row: Concert) => (row.image ? "true" : "false"),
+      render: (row: Concert) =>
+        row.image ? (
+          typeof row.image === "string" ? (
+            <img
+              src={
+                row.image.startsWith("data:")
+                  ? row.image
+                  : `data:image/jpeg;base64,${row.image}`
+              }
+              alt="aperçu"
+              style={{ maxWidth: 60, maxHeight: 60, borderRadius: 4 }}
+              loading="lazy"
+            />
+          ) : (
+            "[image]"
+          )
+        ) : null,
     },
     {
       id: "days",
@@ -77,7 +93,7 @@ const ConcertsManager: React.FC = () => {
     { name: "performer", label: "Interprète", required: true, type: "text" },
     { name: "time", label: "Heure", required: true, type: "time" },
     { name: "location", label: "Lieu", required: true, type: "text" },
-    { name: "image", label: "Image", required: false, type: "text" },
+    { name: "image", label: "Image", required: false, type: "image" },
     {
       name: "dayIds",
       label: "Jours",

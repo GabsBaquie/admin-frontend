@@ -76,13 +76,39 @@ const ContentManager = <
     url: string,
     payload?: Partial<T> | U
   ) => {
-    if (payload) {
-      console.log("Sending data to backend:", JSON.stringify(payload, null, 2));
+    let body: BodyInit | undefined;
+    const headers: Record<string, string> = {};
+    // Si payload contient un champ image qui est un File, on utilise FormData
+    if (
+      payload &&
+      typeof payload === "object" &&
+      "image" in payload &&
+      payload.image instanceof File
+    ) {
+      console.log(
+        "Image file in payload:",
+        payload.image,
+        "size:",
+        payload.image.size
+      );
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (key === "image" && value instanceof File) {
+          formData.append(key, value);
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
+      });
+      body = formData;
+      // Pas de Content-Type, le navigateur le gère
+    } else if (payload) {
+      body = JSON.stringify(payload);
+      headers["Content-Type"] = "application/json";
     }
     return fetchWithAuth<T | void>(url, {
       method,
-      headers: { "Content-Type": "application/json" },
-      body: payload ? JSON.stringify(payload) : undefined,
+      headers,
+      body,
     });
   };
 
