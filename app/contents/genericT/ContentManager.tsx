@@ -4,6 +4,7 @@ import FormModal from "@/app/components/FormModal";
 import Notification from "@/app/components/Notification";
 import { Column, Field } from "@/app/types/content";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
+import { uploadImage } from "@/app/utils/imageUpload";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -71,24 +72,30 @@ const ContentManager = <
       fetchWithAuth<T[]>(`${contentType}`, { method: "GET" }),
   });
 
-  const mutationHandler = (
+  // mutationHandler n'a plus besoin de gérer l'upload d'image
+  const mutationHandler = async (
     method: "POST" | "PUT" | "DELETE",
     url: string,
     payload?: Partial<T> | U
   ) => {
+    let body: BodyInit | undefined;
+    const headers: Record<string, string> = {};
+
     if (payload) {
-      console.log("Sending data to backend:", JSON.stringify(payload, null, 2));
+      body = JSON.stringify(payload);
+      headers["Content-Type"] = "application/json";
     }
+
     return fetchWithAuth<T | void>(url, {
       method,
-      headers: { "Content-Type": "application/json" },
-      body: payload ? JSON.stringify(payload) : undefined,
+      headers,
+      body,
     });
   };
 
   const createMutation = useMutation({
-    mutationFn: (newData: U) =>
-      mutationHandler("POST", contentType, newData as unknown as Partial<T>),
+    mutationFn: async ({ data }: { data: U }) =>
+      mutationHandler("POST", contentType, data as unknown as Partial<T>),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [contentType] });
       setState((prev) => ({ ...prev, isFormOpen: false }));
@@ -99,9 +106,9 @@ const ContentManager = <
   });
 
   const updateMutation = useMutation({
-    mutationFn: (updatedData: U) =>
+    mutationFn: async ({ data }: { data: U }) =>
       // On récupère l'id depuis currentItem pour l'URL, pas dans le payload
-      mutationHandler("PUT", `${contentType}/${currentItem?.id}`, updatedData),
+      mutationHandler("PUT", `${contentType}/${currentItem?.id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [contentType] });
       setState((prev) => ({ ...prev, isFormOpen: false }));
@@ -134,8 +141,8 @@ const ContentManager = <
   const handleDelete = (item: T) =>
     setState((prev) => ({ ...prev, currentItem: item, isDeleteOpen: true }));
 
-  // handleSubmit reçoit maintenant un payload propre (U)
-  const handleSubmit = (data: Partial<U>) => {
+  // handleSubmit reçoit maintenant un payload propre (U) et un fichier image optionnel
+  const handleSubmit = async (data: Partial<U>, imageFile?: File) => {
     if (!transformData) {
       throw new Error(
         "Vous devez fournir une fonction transformData pour nettoyer le payload avant l'envoi au backend."
@@ -151,10 +158,30 @@ const ContentManager = <
       "updatedAt",
     ] as (keyof U)[]);
     console.log("Payload envoyé au backend :", cleanPayload);
+
+    // 1. Upload de l'image si présente
+    let imageUrl: string | undefined;
+    if (imageFile) {
+      try {
+        imageUrl = await uploadImage(imageFile);
+        console.log("Image uploadée avec succès:", imageUrl);
+      } catch (error) {
+        console.error("Erreur lors de l'upload de l'image:", error);
+        setNotification("Erreur lors de l'upload de l'image", "error");
+        return;
+      }
+    }
+
+    // 2. Ajoute l'URL de l'image au payload si présente
+    const finalPayload = imageUrl
+      ? { ...cleanPayload, image: imageUrl }
+      : cleanPayload;
+
+    // 3. Envoie la mutation
     if (currentItem) {
-      updateMutation.mutate(cleanPayload as U);
+      updateMutation.mutate({ data: finalPayload as U });
     } else {
-      createMutation.mutate(cleanPayload as U);
+      createMutation.mutate({ data: finalPayload as U });
     }
   };
 

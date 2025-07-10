@@ -2,10 +2,10 @@
 "use client";
 
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 const CreateUser: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -24,9 +24,10 @@ const CreateUser: React.FC = () => {
     }
 
     try {
-      await fetchWithAuth("/admin/users", {
+      await fetchWithAuth("admin/users", {
         method: "POST",
-        body: JSON.stringify({ username, email, password, role }),
+        headers: { "Content-Type": "application/json" }, // Force le header pour l'API
+        body: JSON.stringify({ username, email, password, role }), // Force le body stringifié
       });
       router.push("/users");
     } catch (err) {

@@ -54,7 +54,32 @@ const ConcertsManager: React.FC = () => {
     {
       id: "image",
       label: "Image",
-      render: (row: Concert) => (row.image ? "true" : "false"),
+      render: (row: Concert) => {
+        // On vérifie que row.image est bien une string non vide
+        if (typeof row.image !== "string" || !row.image) return null;
+
+        let imageUrl = row.image;
+        if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
+          imageUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}${imageUrl}`;
+        }
+
+        return (
+          <img
+            src={imageUrl}
+            alt="aperçu"
+            style={{
+              maxWidth: 60,
+              maxHeight: 60,
+              borderRadius: 4,
+              background: "#eee",
+            }}
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        );
+      },
     },
     {
       id: "days",
@@ -77,7 +102,7 @@ const ConcertsManager: React.FC = () => {
     { name: "performer", label: "Interprète", required: true, type: "text" },
     { name: "time", label: "Heure", required: true, type: "time" },
     { name: "location", label: "Lieu", required: true, type: "text" },
-    { name: "image", label: "Image", required: false, type: "text" },
+    { name: "image", label: "Image", required: false, type: "image" },
     {
       name: "dayIds",
       label: "Jours",
