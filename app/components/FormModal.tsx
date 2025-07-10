@@ -146,10 +146,7 @@ const FormModal = <T extends WithImage>({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 || mode === "edit") {
-      // On enlève le champ image des données du formulaire
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { image, ...dataWithoutImage } = formData;
-      onSubmit(dataWithoutImage as Partial<T>, selectedImageFile || undefined);
+      onSubmit(formData as Partial<T>, selectedImageFile || undefined);
     }
   };
 
