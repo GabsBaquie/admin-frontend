@@ -5,6 +5,7 @@ import { AuthProvider } from "@/app/context/AuthContext";
 import QueryProvider from "@/app/providers/QueryProvider";
 import { usePathname } from "next/navigation";
 import React from "react";
+import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
 import "./globals.css";
 
@@ -32,13 +33,15 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <html lang="fr">
       <body>
-        <AuthProvider>
-          <QueryProvider>
-            {/* Afficher la Navbar seulement si hideNavbar est faux */}
-            {!hideNavbar && <Navbar />}
-            {children}
-          </QueryProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <QueryProvider>
+              {/* Afficher la Navbar seulement si hideNavbar est faux */}
+              {!hideNavbar && <Navbar />}
+              {children}
+            </QueryProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
