@@ -59,18 +59,32 @@ const FormModal = <T extends WithImage>({
   };
 
   useEffect(() => {
-    if (open && initialData) {
-      setFormData(initialData);
-      // Si une image existe déjà, on la met en preview
-      if (initialData.image) {
-        // Si l'image est déjà une URL complète, on la garde, sinon on la complète
-        setImagePreview(initialData.image);
+    if (open) {
+      if (initialData) {
+        setFormData(initialData);
+        // Si une image existe déjà, on la met en preview
+        if (initialData.image) {
+          // Si l'image est déjà une URL complète, on la garde, sinon on la complète
+          setImagePreview(initialData.image);
+        } else {
+          setImagePreview(null);
+        }
+        setSelectedImageFile(null);
       } else {
+        // Initialisation pour la création - initialiser les champs multiselect avec des tableaux vides
+        const initialFormData: Partial<T> = {};
+        fields.forEach((field) => {
+          if (field.type === "multiselect" && field.multiple) {
+            (initialFormData as Record<string, unknown>)[field.name as string] =
+              [];
+          }
+        });
+        setFormData(initialFormData);
         setImagePreview(null);
+        setSelectedImageFile(null);
       }
-      setSelectedImageFile(null);
     }
-  }, [open, initialData]);
+  }, [open, initialData, fields]);
 
   const validateField = (
     field: Field<T>,
@@ -86,7 +100,12 @@ const FormModal = <T extends WithImage>({
     name: keyof T,
     value: string | string[] | number | number[]
   ) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log(`FormModal handleChange - ${String(name)}:`, value);
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: value };
+      console.log("FormModal new formData:", newData);
+      return newData;
+    });
 
     const field = fields.find((f) => f.name === name);
     if (field) {
@@ -101,6 +120,12 @@ const FormModal = <T extends WithImage>({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Vérifier que le fichier existe et a un nom
+      if (!file || !file.name) {
+        alert("Fichier invalide");
+        return;
+      }
+
       // Vérifier la taille du fichier (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert("L'image ne doit pas dépasser 5MB");
@@ -108,7 +133,7 @@ const FormModal = <T extends WithImage>({
       }
 
       // Vérifier le type de fichier
-      if (!file.type.startsWith("image/")) {
+      if (!file.type || !file.type.startsWith("image/")) {
         alert("Veuillez sélectionner un fichier image valide");
         return;
       }
@@ -126,6 +151,8 @@ const FormModal = <T extends WithImage>({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log("FormModal handleSubmit - formData:", formData);
 
     const newErrors: Partial<Record<keyof T, string>> = {};
     fields.forEach((field) => {
@@ -146,6 +173,7 @@ const FormModal = <T extends WithImage>({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 || mode === "edit") {
+      console.log("FormModal onSubmit - sending data:", formData);
       onSubmit(formData as Partial<T>, selectedImageFile || undefined);
     }
   };
@@ -257,6 +285,7 @@ const FormModal = <T extends WithImage>({
           {imagePreview && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
               {(() => {
+                console.log("Rendu imagePreview:", imagePreview);
                 let previewUrl = imagePreview;
                 if (
                   typeof previewUrl === "string" &&
@@ -265,6 +294,7 @@ const FormModal = <T extends WithImage>({
                 ) {
                   previewUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}${previewUrl}`;
                 }
+                console.log("URL finale pour preview:", previewUrl);
                 return (
                   <img
                     src={previewUrl}
@@ -327,8 +357,19 @@ const FormModal = <T extends WithImage>({
                       border: "2px solid #eee",
                     }}
                     onClick={() => {
-                      setImagePreview(img.startsWith("http") ? img : `${img}`);
-                      setFormData((prev) => ({ ...prev, image: img }));
+                      const imageUrl = img.startsWith("http")
+                        ? img
+                        : `${process.env.NEXT_PUBLIC_ASSETS_URL}${img}`;
+                      console.log("Image serveur sélectionnée:", {
+                        img,
+                        imageUrl,
+                      });
+                      setImagePreview(imageUrl);
+                      setFormData((prev) => {
+                        const newData = { ...prev, image: img };
+                        console.log("FormData mis à jour avec image:", newData);
+                        return newData;
+                      });
                       setSelectedImageFile(null);
                       setShowImageSelector(false);
                     }}

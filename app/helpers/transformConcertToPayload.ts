@@ -10,17 +10,21 @@ export type ConcertPayload = {
   dayIds: number[];
 };
 
-export const transformConcertToPayload = (concert: Concert): ConcertPayload => {
+export const transformConcertToPayload = (
+  concert: Concert | ConcertPayload
+): ConcertPayload => {
   const payload: Partial<ConcertPayload> = {
     title: concert.title,
     description: concert.description,
     performer: concert.performer,
     time: concert.time,
     location: concert.location,
-    dayIds:
-      concert.days
-        ?.filter((day) => typeof day.id === "number")
-        .map((day) => day.id) ?? [],
+    // Gérer les dayIds selon le type d'objet reçu
+    dayIds: Array.isArray((concert as any).dayIds)
+      ? (concert as any).dayIds // Si c'est déjà un tableau de dayIds (depuis le formulaire)
+      : (concert as any).days
+          ?.filter((day: any) => typeof day.id === "number")
+          .map((day: any) => day.id) ?? [], // Si c'est un objet Concert avec des days
     // Ajout explicite du champ image, même s'il vaut null
     image:
       typeof concert.image === "string" &&
