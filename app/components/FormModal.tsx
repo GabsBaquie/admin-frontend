@@ -292,11 +292,21 @@ const FormModal = <T extends WithImage>({
                   !previewUrl.startsWith("http") &&
                   !previewUrl.startsWith("data:")
                 ) {
-                  previewUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}${previewUrl}`;
+                  // Utiliser l'URL de l'API pour servir les images
+                  const apiBaseUrl =
+                    process.env.NEXT_PUBLIC_API_URL ||
+                    "http://localhost:3000/api";
+                  const assetsUrl = apiBaseUrl.replace("/api", "");
+                  // Enlever le slash initial s'il existe pour éviter les doubles slashes
+                  const cleanPath = previewUrl.startsWith("/")
+                    ? previewUrl.slice(1)
+                    : previewUrl;
+                  previewUrl = `${assetsUrl}/${cleanPath}`;
                 }
                 console.log("URL finale pour preview:", previewUrl);
                 return (
                   <img
+                    key={previewUrl} // Force le re-rendu avec une clé unique
                     src={previewUrl}
                     alt="Preview"
                     style={{
@@ -346,7 +356,17 @@ const FormModal = <T extends WithImage>({
                     src={
                       img.startsWith("http")
                         ? img
-                        : `${process.env.NEXT_PUBLIC_ASSETS_URL}${img}`
+                        : (() => {
+                            const apiBaseUrl =
+                              process.env.NEXT_PUBLIC_API_URL ||
+                              "http://localhost:3000/api";
+                            const assetsUrl = apiBaseUrl.replace("/api", "");
+                            // Enlever le slash initial s'il existe pour éviter les doubles slashes
+                            const cleanPath = img.startsWith("/")
+                              ? img.slice(1)
+                              : img;
+                            return `${assetsUrl}/${cleanPath}`;
+                          })()
                     }
                     alt={img}
                     style={{
@@ -359,12 +379,28 @@ const FormModal = <T extends WithImage>({
                     onClick={() => {
                       const imageUrl = img.startsWith("http")
                         ? img
-                        : `${process.env.NEXT_PUBLIC_ASSETS_URL}${img}`;
+                        : (() => {
+                            const apiBaseUrl =
+                              process.env.NEXT_PUBLIC_API_URL ||
+                              "http://localhost:3000/api";
+                            const assetsUrl = apiBaseUrl.replace("/api", "");
+                            // Enlever le slash initial s'il existe pour éviter les doubles slashes
+                            const cleanPath = img.startsWith("/")
+                              ? img.slice(1)
+                              : img;
+                            return `${assetsUrl}/${cleanPath}`;
+                          })();
                       console.log("Image serveur sélectionnée:", {
                         img,
                         imageUrl,
                       });
-                      setImagePreview(imageUrl);
+
+                      // Forcer le re-rendu en utilisant une clé unique
+                      setImagePreview(null);
+                      setTimeout(() => {
+                        setImagePreview(imageUrl);
+                      }, 0);
+
                       setFormData((prev) => {
                         const newData = { ...prev, image: img };
                         console.log("FormData mis à jour avec image:", newData);

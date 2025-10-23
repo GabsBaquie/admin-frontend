@@ -60,7 +60,14 @@ const ConcertsManager: React.FC = () => {
 
         let imageUrl = row.image;
         if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
-          imageUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}${imageUrl}`;
+          const apiBaseUrl =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          const assetsUrl = apiBaseUrl.replace("/api", "");
+          // Enlever le slash initial s'il existe pour éviter les doubles slashes
+          const cleanPath = imageUrl.startsWith("/")
+            ? imageUrl.slice(1)
+            : imageUrl;
+          imageUrl = `${assetsUrl}/${cleanPath}`;
         }
 
         return (
