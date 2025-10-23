@@ -17,6 +17,7 @@ interface DayFormData {
   id?: number;
   title: string;
   date: string;
+  image?: string;
   concertIds: number[];
 }
 
@@ -48,6 +49,43 @@ const DaysManager: React.FC = () => {
       render: (row: Day) => new Date(row.date).toLocaleDateString(),
     },
     {
+      id: "image",
+      label: "Image",
+      render: (row: Day) => {
+        // On vérifie que row.image est bien une string non vide
+        if (typeof row.image !== "string" || !row.image) return null;
+
+        let imageUrl = row.image;
+        if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
+          const apiBaseUrl =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+          const assetsUrl = apiBaseUrl.replace("/api", "");
+          // Enlever le slash initial s'il existe pour éviter les doubles slashes
+          const cleanPath = imageUrl.startsWith("/")
+            ? imageUrl.slice(1)
+            : imageUrl;
+          imageUrl = `${assetsUrl}/${cleanPath}`;
+        }
+
+        return (
+          <img
+            src={imageUrl}
+            alt="aperçu"
+            style={{
+              maxWidth: 60,
+              maxHeight: 60,
+              borderRadius: 4,
+              background: "#eee",
+            }}
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        );
+      },
+    },
+    {
       id: "concerts",
       label: "Concerts",
       render: (row: Day) =>
@@ -60,6 +98,7 @@ const DaysManager: React.FC = () => {
   const fields: Field<DayFormData>[] = [
     { name: "title", label: "Nom", required: true, type: "text" },
     { name: "date", label: "Date", required: true, type: "date" },
+    { name: "image", label: "Image", required: false, type: "image" },
     {
       name: "concertIds",
       label: "Concerts",
@@ -77,6 +116,7 @@ const DaysManager: React.FC = () => {
     const payload = {
       title: data.title,
       date: data.date,
+      image: data.image,
       concertIds:
         data.concerts?.map((concert) => concert.id) ?? data.concertIds ?? [],
     };
