@@ -71,12 +71,16 @@ const FormModal = <T extends WithImage>({
         }
         setSelectedImageFile(null);
       } else {
-        // Initialisation pour la création - initialiser les champs multiselect avec des tableaux vides
+        // Initialisation pour la création - initialiser les champs avec des valeurs par défaut
         const initialFormData: Partial<T> = {};
         fields.forEach((field) => {
           if (field.type === "multiselect" && field.multiple) {
             (initialFormData as Record<string, unknown>)[field.name as string] =
               [];
+          } else if (field.type === "select" && field.options) {
+            // Initialiser les champs select avec la première option
+            (initialFormData as Record<string, unknown>)[field.name as string] =
+              field.options[0]?.value || "";
           }
         });
         setFormData(initialFormData);

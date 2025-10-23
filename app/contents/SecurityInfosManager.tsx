@@ -13,8 +13,14 @@ type SecurityInfoPayload = {
 const transformSecurityInfoToPayload = (data: Partial<SecurityInfo>) => ({
   title: data.title ?? "",
   description: data.description ?? "",
-  urgence: String(data.urgence) === "true" || data.urgence === true,
-  actif: String(data.actif) === "true" || data.actif === true,
+  urgence:
+    data.urgence !== undefined
+      ? String(data.urgence) === "true" || data.urgence === true
+      : false,
+  actif:
+    data.actif !== undefined
+      ? String(data.actif) === "true" || data.actif === true
+      : true,
 });
 
 const SecurityInfosManager: React.FC = () => {
@@ -24,8 +30,8 @@ const SecurityInfosManager: React.FC = () => {
     { id: "description" as keyof SecurityInfo, label: "Description" },
     { id: "urgence" as keyof SecurityInfo, label: "Urgence" },
     { id: "actif" as keyof SecurityInfo, label: "Actif" },
-    { id: "createdAt" as keyof SecurityInfo, label: "Créé le" },
-    { id: "updatedAt" as keyof SecurityInfo, label: "Mis à Jour le" },
+    { id: "created_at" as keyof SecurityInfo, label: "Créé le" },
+    { id: "updated_at" as keyof SecurityInfo, label: "Mis à Jour le" },
   ];
   const fields: Field<SecurityInfoPayload>[] = [
     { name: "title", label: "Titre", required: true, type: "text" },
