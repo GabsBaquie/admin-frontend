@@ -25,13 +25,35 @@ const transformSecurityInfoToPayload = (data: Partial<SecurityInfo>) => ({
 
 const SecurityInfosManager: React.FC = () => {
   const contentType = "securityInfos";
+
+  // Fonction pour formater les dates
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const columns = [
     { id: "title" as keyof SecurityInfo, label: "Titre" },
     { id: "description" as keyof SecurityInfo, label: "Description" },
     { id: "urgence" as keyof SecurityInfo, label: "Urgence" },
     { id: "actif" as keyof SecurityInfo, label: "Actif" },
-    { id: "created_at" as keyof SecurityInfo, label: "Créé le" },
-    { id: "updated_at" as keyof SecurityInfo, label: "Mis à Jour le" },
+    {
+      id: "created_at" as keyof SecurityInfo,
+      label: "Créé le",
+      render: (row: SecurityInfo) => formatDate(row.created_at),
+    },
+    {
+      id: "updated_at" as keyof SecurityInfo,
+      label: "Mis à Jour le",
+      render: (row: SecurityInfo) => formatDate(row.updated_at),
+    },
   ];
   const fields: Field<SecurityInfoPayload>[] = [
     { name: "title", label: "Titre", required: true, type: "text" },
