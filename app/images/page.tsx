@@ -1,9 +1,11 @@
 "use client";
 
 import {
+  Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   Refresh as RefreshIcon,
+  Upload as UploadIcon,
 } from "@mui/icons-material";
 import {
   Alert,
@@ -19,6 +21,7 @@ import {
   DialogTitle,
   Grid,
   IconButton,
+  LinearProgress,
   TextField,
   Typography,
 } from "@mui/material";
@@ -28,6 +31,7 @@ import {
   getServerImages,
   renameServerImage,
 } from "../utils/imageServerApi";
+import { uploadImage } from "../utils/imageUpload";
 
 const ImagesPage: React.FC = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -36,6 +40,11 @@ const ImagesPage: React.FC = () => {
   const [editingImage, setEditingImage] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const [deletingImage, setDeletingImage] = useState<string | null>(null);
+
+  // États pour l'upload d'image
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     loadImages();
@@ -96,6 +105,62 @@ const ImagesPage: React.FC = () => {
     return `${assetsUrl}${imagePath}`;
   };
 
+  // Gestion de l'upload d'image
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setError(null);
+    }
+  };
+
+  const handleUploadImage = async () => {
+    if (!selectedFile) return;
+
+    setUploading(true);
+    setUploadProgress(0);
+    setError(null);
+
+    try {
+      // Simuler le progrès d'upload
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 100);
+
+      const imageUrl = await uploadImage(selectedFile);
+
+      // Finaliser le progrès
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      // Ajouter la nouvelle image à la liste
+      setImages([...images, imageUrl]);
+      setSelectedFile(null);
+
+      // Réinitialiser l'input file
+      const fileInput = document.getElementById(
+        "image-upload"
+      ) as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erreur lors de l'upload de l'image";
+      setError(errorMessage);
+      console.error(err);
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Box
@@ -120,6 +185,60 @@ const ImagesPage: React.FC = () => {
           {error}
         </Alert>
       )}
+
+      {/* Section d'upload d'image */}
+      <Box sx={{ mb: 3, p: 2, border: "1px dashed #ccc", borderRadius: 1 }}>
+        <Typography variant="h6" gutterBottom>
+          Ajouter une nouvelle image
+        </Typography>
+
+        <Box display="flex" alignItems="center" gap={2} mb={2}>
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            style={{ display: "none" }}
+          />
+          <label htmlFor="image-upload">
+            <Button
+              variant="outlined"
+              component="span"
+              startIcon={<UploadIcon />}
+              disabled={uploading}
+            >
+              Sélectionner une image
+            </Button>
+          </label>
+
+          {selectedFile && (
+            <Typography variant="body2" color="text.secondary">
+              {selectedFile.name} (
+              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+            </Typography>
+          )}
+
+          {selectedFile && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleUploadImage}
+              disabled={uploading}
+            >
+              Uploader
+            </Button>
+          )}
+        </Box>
+
+        {uploading && (
+          <Box>
+            <LinearProgress variant="determinate" value={uploadProgress} />
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+              Upload en cours... {uploadProgress}%
+            </Typography>
+          </Box>
+        )}
+      </Box>
 
       {loading ? (
         <Box display="flex" justifyContent="center" p={3}>

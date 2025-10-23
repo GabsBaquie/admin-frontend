@@ -42,7 +42,6 @@ const FormModal = <T extends WithImage>({
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData || {});
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
-  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showImageManager, setShowImageManager] = useState(false);
 
@@ -57,7 +56,6 @@ const FormModal = <T extends WithImage>({
         } else {
           setImagePreview(null);
         }
-        setSelectedImageFile(null);
       } else {
         // Initialisation pour la création - initialiser les champs avec des valeurs par défaut
         const initialFormData: Partial<T> = {};
@@ -73,7 +71,6 @@ const FormModal = <T extends WithImage>({
         });
         setFormData(initialFormData);
         setImagePreview(null);
-        setSelectedImageFile(null);
       }
     }
   }, [open, initialData, fields]);
@@ -109,42 +106,6 @@ const FormModal = <T extends WithImage>({
     }
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Vérifier que le fichier existe et a un nom
-      if (!file || !file.name) {
-        alert("Fichier invalide");
-        return;
-      }
-
-      // Vérifier la taille du fichier (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("L'image ne doit pas dépasser 5MB");
-        return;
-      }
-
-      // Vérifier le type de fichier
-      if (!file.type || !file.type.startsWith("image/")) {
-        alert("Veuillez sélectionner un fichier image valide");
-        return;
-      }
-
-      setSelectedImageFile(file);
-
-      // Créer une preview avec re-render forcé
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // Forcer le re-render en utilisant setTimeout
-        setImagePreview(null);
-        setTimeout(() => {
-          setImagePreview(reader.result as string);
-        }, 0);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -170,7 +131,7 @@ const FormModal = <T extends WithImage>({
 
     if (Object.keys(newErrors).length === 0 || mode === "edit") {
       console.log("FormModal onSubmit - sending data:", formData);
-      onSubmit(formData as Partial<T>, selectedImageFile || undefined);
+      onSubmit(formData as Partial<T>);
     }
   };
 
@@ -245,38 +206,16 @@ const FormModal = <T extends WithImage>({
     if (field.name === "image") {
       return (
         <Box key={String(field.name)} sx={{ mb: 2 }}>
-          <input
-            accept="image/*"
-            style={{ display: "none" }}
-            id="image-upload"
-            type="file"
-            onChange={handleImageChange}
-          />
-          <label htmlFor="image-upload">
-            <Button
-              variant="outlined"
-              component="span"
-              startIcon={<ImageIcon />}
-              sx={{ mb: 2 }}
-            >
-              Choisir une image
-            </Button>
-          </label>
           <Button
             variant="outlined"
-            sx={{ ml: 2, mb: 2 }}
+            sx={{ mb: 2 }}
+            startIcon={<ImageIcon />}
             onClick={() => {
               setShowImageManager(true);
             }}
           >
-            Choisir/Gérer une image serveur
+            Choisir une image serveur
           </Button>
-          {selectedImageFile && (
-            <Typography variant="caption" display="block" sx={{ mb: 1 }}>
-              Fichier sélectionné : {selectedImageFile.name} (
-              {(selectedImageFile.size / 1024 / 1024).toFixed(2)} MB)
-            </Typography>
-          )}
           {imagePreview && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
               {(() => {
@@ -320,7 +259,6 @@ const FormModal = <T extends WithImage>({
                 sx={{ mt: 1 }}
                 onClick={() => {
                   setImagePreview(null);
-                  setSelectedImageFile(null);
                   setFormData((prev) => ({ ...prev, image: null }));
                 }}
               >
@@ -328,7 +266,6 @@ const FormModal = <T extends WithImage>({
               </Button>
             </Box>
           )}
-          {/* Ancien sélecteur d'images supprimé - maintenant géré par ImageServerManager */}
         </Box>
       );
     }
@@ -452,7 +389,6 @@ const FormModal = <T extends WithImage>({
         onClose={() => setShowImageManager(false)}
         onImageSelect={(imageUrl) => {
           setImagePreview(imageUrl);
-          setSelectedImageFile(null);
           setFormData({ ...formData, image: imageUrl });
         }}
       />

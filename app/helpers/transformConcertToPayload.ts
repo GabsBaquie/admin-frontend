@@ -20,11 +20,23 @@ export const transformConcertToPayload = (
     time: concert.time,
     location: concert.location,
     // Gérer les dayIds selon le type d'objet reçu
-    dayIds: Array.isArray((concert as any).dayIds)
-      ? (concert as any).dayIds // Si c'est déjà un tableau de dayIds (depuis le formulaire)
-      : (concert as any).days
-          ?.filter((day: any) => typeof day.id === "number")
-          .map((day: any) => day.id) ?? [], // Si c'est un objet Concert avec des days
+    dayIds: (() => {
+      const concertData = concert as Record<string, unknown>;
+
+      // Si c'est déjà un tableau de dayIds (depuis le formulaire)
+      if (Array.isArray(concertData.dayIds)) {
+        return concertData.dayIds as number[];
+      }
+
+      // Si c'est un objet Concert avec des days
+      if (Array.isArray(concertData.days)) {
+        return concertData.days
+          .filter((day: Record<string, unknown>) => typeof day.id === "number")
+          .map((day: Record<string, unknown>) => day.id as number);
+      }
+
+      return [];
+    })(),
     // Ajout explicite du champ image, même s'il vaut null
     image:
       typeof concert.image === "string" &&
