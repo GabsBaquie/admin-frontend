@@ -3,8 +3,10 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import React, { useState } from "react";
 
+import ActualitesManager from "@/app/contents/ActualitesManager";
 import ConcertsManager from "@/app/contents/ConcertsManager";
 import DaysManager from "@/app/contents/Days";
+import PartenairesManager from "@/app/contents/PartenairesManager";
 import POIsManager from "@/app/contents/POI";
 import SecurityInfosManager from "@/app/contents/SecurityInfosManager";
 import ImagesPage from "@/app/images/page";
@@ -26,6 +28,10 @@ const Dashboard: React.FC = () => {
         return <DaysManager />;
       case "concerts":
         return <ConcertsManager />;
+      case "actualites":
+        return <ActualitesManager />;
+      case "partenaires":
+        return <PartenairesManager />;
       case "images":
         return <ImagesPage />;
       default:

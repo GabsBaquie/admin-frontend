@@ -11,6 +11,8 @@ import {
 } from "@mui/material";
 import React from "react";
 
+import ArticleIcon from "@mui/icons-material/Article";
+import BusinessIcon from "@mui/icons-material/Business";
 import EventIcon from "@mui/icons-material/Event";
 import ImageIcon from "@mui/icons-material/Image";
 import MapIcon from "@mui/icons-material/Map";
@@ -34,6 +36,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect, selectedSection }) => {
       text: "Infos Sécurité",
       icon: <SecurityIcon />,
       section: "securityinfos",
+    },
+    {
+      text: "Actualités",
+      icon: <ArticleIcon />,
+      section: "actualites",
+    },
+    {
+      text: "Partenaires",
+      icon: <BusinessIcon />,
+      section: "partenaires",
     },
     {
       text: "Images Serveur",
