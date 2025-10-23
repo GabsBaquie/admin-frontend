@@ -22,6 +22,7 @@ import {
   Grid,
   IconButton,
   LinearProgress,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -45,6 +46,10 @@ const ImagesPage: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // États pour les alertes
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     loadImages();
@@ -73,6 +78,10 @@ const ImagesPage: React.FC = () => {
       await deleteServerImage(filename);
       setImages(images.filter((img) => img !== imageUrl));
       setError(null);
+
+      // Afficher l'alerte de succès
+      setSuccessMessage("Image supprimée avec succès !");
+      setShowSuccess(true);
     } catch (err) {
       setError("Erreur lors de la suppression de l'image");
       console.error(err);
@@ -92,6 +101,10 @@ const ImagesPage: React.FC = () => {
       setEditingImage(null);
       setNewName("");
       setError(null);
+
+      // Afficher l'alerte de succès
+      setSuccessMessage("Image renommée avec succès !");
+      setShowSuccess(true);
     } catch (err) {
       setError("Erreur lors du renommage de l'image");
       console.error(err);
@@ -148,6 +161,10 @@ const ImagesPage: React.FC = () => {
         "image-upload"
       ) as HTMLInputElement;
       if (fileInput) fileInput.value = "";
+
+      // Afficher l'alerte de succès
+      setSuccessMessage("Image uploadée avec succès !");
+      setShowSuccess(true);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
@@ -316,6 +333,22 @@ const ImagesPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar pour les alertes de succès */}
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={4000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setShowSuccess(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
