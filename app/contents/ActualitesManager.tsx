@@ -1,6 +1,9 @@
-import ImagePreview from "@/app/components/ImagePreview";
-import ImportanceBadge from "@/app/components/ImportanceBadge";
-import StatusBadge from "@/app/components/StatusBadge";
+import { 
+  ImportanceRenderer, 
+  StatusRenderer, 
+  ImageRenderer, 
+  DateRenderer 
+} from "@/app/components/ColumnRenderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { ActualitePayload } from "@/app/helpers/transformActualiteToPayload";
 import { Actualite } from "@/app/types/Actualite";
@@ -18,20 +21,18 @@ const ActualitesManager: React.FC = () => {
     {
       id: "importance",
       label: "Importance",
-      render: (row: Actualite) => (
-        <ImportanceBadge importance={row.importance} />
-      ),
+      render: (row: Actualite) => <ImportanceRenderer value={row.importance} />,
     },
     {
       id: "actif",
       label: "Actif",
-      render: (row: Actualite) => <StatusBadge isActive={row.actif} />,
+      render: (row: Actualite) => <StatusRenderer value={row.actif} />,
     },
     {
       id: "image",
       label: "Image",
       render: (row: Actualite) => (
-        <ImagePreview
+        <ImageRenderer
           src={row.image || ""}
           alt="Image de l'actualité"
           width={60}
@@ -42,19 +43,7 @@ const ActualitesManager: React.FC = () => {
     {
       id: "created_at",
       label: "Créé le",
-      render: (row: Actualite) => {
-        if (row.created_at) {
-          const date = new Date(row.created_at);
-          return date.toLocaleDateString("fr-FR", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-        }
-        return "";
-      },
+      render: (row: Actualite) => <DateRenderer value={row.created_at} />,
     },
   ];
 

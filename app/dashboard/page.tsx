@@ -3,6 +3,8 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import React, { useState } from "react";
 
+export const dynamic = "force-dynamic";
+
 import ActualitesManager from "@/app/contents/ActualitesManager";
 import ConcertsManager from "@/app/contents/ConcertsManager";
 import DaysManager from "@/app/contents/Days";

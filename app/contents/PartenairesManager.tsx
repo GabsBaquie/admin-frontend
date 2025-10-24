@@ -1,5 +1,8 @@
-import ImagePreview from "@/app/components/ImagePreview";
-import StatusBadge from "@/app/components/StatusBadge";
+import { 
+  StatusRenderer, 
+  ImageRenderer, 
+  DateRenderer 
+} from "@/app/components/ColumnRenderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { PartenairePayload } from "@/app/helpers/transformPartenaireToPayload";
 import { Partenaire } from "@/app/types/Partenaire";
@@ -19,7 +22,7 @@ const PartenairesManager: React.FC = () => {
       id: "image",
       label: "Logo",
       render: (row: Partenaire) => (
-        <ImagePreview
+        <ImageRenderer
           src={row.image || ""}
           alt="Logo du partenaire"
           width={60}
@@ -30,24 +33,12 @@ const PartenairesManager: React.FC = () => {
     {
       id: "actif",
       label: "Actif",
-      render: (row: Partenaire) => <StatusBadge isActive={row.actif} />,
+      render: (row: Partenaire) => <StatusRenderer value={row.actif} />,
     },
     {
       id: "created_at",
       label: "Créé le",
-      render: (row: Partenaire) => {
-        if (row.created_at) {
-          const date = new Date(row.created_at);
-          return date.toLocaleDateString("fr-FR", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-        }
-        return "";
-      },
+      render: (row: Partenaire) => <DateRenderer value={row.created_at} />,
     },
   ];
 

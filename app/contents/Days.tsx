@@ -1,6 +1,9 @@
 "use client";
 
-import ImagePreview from "@/app/components/ImagePreview";
+import { 
+  ImageRenderer, 
+  ConcertsRenderer 
+} from "@/app/components/ColumnRenderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { useToast } from "@/app/context/ToastContext";
 import { DayCreateOrUpdatePayload } from "@/app/helpers/transformDayToPayload";
@@ -51,7 +54,7 @@ const DaysManager: React.FC = () => {
       id: "image",
       label: "Image",
       render: (row: Day) => (
-        <ImagePreview
+        <ImageRenderer
           src={row.image || ""}
           alt="Aperçu du jour"
           width={60}
@@ -62,12 +65,7 @@ const DaysManager: React.FC = () => {
     {
       id: "concerts",
       label: "Concerts",
-      render: (row: Day) => {
-        if (Array.isArray(row.concerts) && row.concerts.length > 0) {
-          return row.concerts.map((concert) => concert.title).join(", ");
-        }
-        return "Aucun concert";
-      },
+      render: (row: Day) => <ConcertsRenderer concerts={row.concerts || []} />,
     },
   ];
 
