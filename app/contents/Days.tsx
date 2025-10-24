@@ -45,56 +45,9 @@ const DaysManager: React.FC = () => {
   const columns: Column<Day>[] = [
     { id: "id", label: "ID" },
     { id: "title", label: "Nom" },
-    {
-      id: "date",
-      label: "Date",
-      render: (row: Day) => new Date(row.date).toLocaleDateString(),
-    },
-    {
-      id: "image",
-      label: "Image",
-      render: (row: Day) => {
-        // On vérifie que row.image est bien une string non vide
-        if (typeof row.image !== "string" || !row.image) return null;
-
-        let imageUrl = row.image;
-        if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
-          const apiBaseUrl =
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-          const assetsUrl = apiBaseUrl.replace("/api", "");
-          // Enlever le slash initial s'il existe pour éviter les doubles slashes
-          const cleanPath = imageUrl.startsWith("/")
-            ? imageUrl.slice(1)
-            : imageUrl;
-          imageUrl = `${assetsUrl}/${cleanPath}`;
-        }
-
-        return (
-          <img
-            src={imageUrl}
-            alt="aperçu"
-            style={{
-              maxWidth: 60,
-              maxHeight: 60,
-              borderRadius: 4,
-              background: "#eee",
-            }}
-            loading="lazy"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
-        );
-      },
-    },
-    {
-      id: "concerts",
-      label: "Concerts",
-      render: (row: Day) =>
-        Array.isArray(row.concerts) && row.concerts.length > 0
-          ? row.concerts.map((concert) => concert.title).join(" , ")
-          : "Aucun concert",
-    },
+    { id: "date", label: "Date" },
+    { id: "image", label: "Image" },
+    { id: "concerts", label: "Concerts" },
   ];
 
   const fields: Field<DayFormData>[] = [

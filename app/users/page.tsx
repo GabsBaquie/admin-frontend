@@ -1,12 +1,14 @@
 // app/users/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
+import React, { useEffect, useState } from "react";
 
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
   Paper,
   Table,
@@ -16,10 +18,8 @@ import {
   TableHead,
   TableRow,
   Typography,
-  CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
-import ProtectedRoute from "../components/ProtectedRoute";
 
 interface User {
   id: number;
@@ -134,7 +134,8 @@ const Users: React.FC = () => {
                           variant="outlined"
                           color="primary"
                           size="small"
-                          className="mr-2">
+                          className="mr-2"
+                        >
                           Éditer
                         </Button>
                       </Link>
@@ -142,7 +143,8 @@ const Users: React.FC = () => {
                         variant="outlined"
                         color="secondary"
                         size="small"
-                        onClick={() => deleteUser(user.id)}>
+                        onClick={() => deleteUser(user.id)}
+                      >
                         Supprimer
                       </Button>
                     </TableCell>

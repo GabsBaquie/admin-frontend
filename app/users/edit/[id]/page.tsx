@@ -1,22 +1,22 @@
 // app/users/edit/[id]/page.tsx
 "use client";
 
+import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
-  TextField,
-  Typography,
-  Select,
-  MenuItem,
   FormControl,
   InputLabel,
-  CircularProgress,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
-import ProtectedRoute from "../../../components/ProtectedRoute";
-import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 
 interface User {
   id: number;
@@ -104,7 +104,7 @@ const EditUser: React.FC = () => {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <Container maxWidth="sm">
-        <Box mt={5} className="bg-white p-8 rounded shadow">
+        <Box mt={5} className="p-8 bg-white rounded shadow">
           <Typography variant="h4" gutterBottom>
             Modifier l&apos;Utilisateur
           </Typography>
@@ -140,7 +140,8 @@ const EditUser: React.FC = () => {
               <Select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                label="Rôle">
+                label="Rôle"
+              >
                 <MenuItem value="user">User</MenuItem>
                 <MenuItem value="admin">Admin</MenuItem>
               </Select>

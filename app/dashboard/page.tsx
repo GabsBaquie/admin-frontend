@@ -11,9 +11,9 @@ import POIsManager from "@/app/contents/POI";
 import SecurityInfosManager from "@/app/contents/SecurityInfosManager";
 import ImagesPage from "@/app/images/page";
 
+import ProtectedRoute from "@/app/components/ProtectedRoute";
+import Sidebar from "@/app/components/Sidebar";
 import Link from "next/link";
-import ProtectedRoute from "../components/ProtectedRoute";
-import Sidebar from "../components/Sidebar";
 
 const Dashboard: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState<string>("days"); // Section par défaut

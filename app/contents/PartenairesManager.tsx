@@ -1,4 +1,3 @@
-import ImagePreview from "@/app/components/ImagePreview";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import {
   PartenairePayload,
@@ -16,53 +15,10 @@ const PartenairesManager: React.FC = () => {
     { id: "id", label: "ID" },
     { id: "name", label: "Nom" },
     { id: "type", label: "Type" },
-    {
-      id: "link",
-      label: "Lien",
-      render: (row: Partenaire) => (
-        <a
-          href={row.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: "#1976d2", textDecoration: "none" }}
-        >
-          {row.link}
-        </a>
-      ),
-    },
-    {
-      id: "image",
-      label: "Logo",
-      render: (row: Partenaire) => (
-        <ImagePreview
-          src={row.image}
-          alt={row.logo_alt}
-          width={60}
-          height={60}
-        />
-      ),
-    },
-    {
-      id: "actif",
-      label: "Actif",
-      render: (row: Partenaire) => (
-        <span
-          className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            row.actif
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {row.actif ? "Actif" : "Inactif"}
-        </span>
-      ),
-    },
-    {
-      id: "created_at",
-      label: "Créé le",
-      render: (row: Partenaire) =>
-        new Date(row.created_at).toLocaleDateString("fr-FR"),
-    },
+    { id: "link", label: "Lien" },
+    { id: "image", label: "Logo" },
+    { id: "actif", label: "Actif" },
+    { id: "created_at", label: "Créé le" },
   ];
 
   const fields: Field<PartenairePayload>[] = [

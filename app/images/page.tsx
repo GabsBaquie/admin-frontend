@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  deleteServerImage,
+  getServerImages,
+  renameServerImage,
+} from "@/app/utils/imageServerApi";
+import { uploadImage } from "@/app/utils/imageUpload";
+import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
@@ -27,12 +33,6 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import {
-  deleteServerImage,
-  getServerImages,
-  renameServerImage,
-} from "../utils/imageServerApi";
-import { uploadImage } from "../utils/imageUpload";
 
 const ImagesPage: React.FC = () => {
   const [images, setImages] = useState<string[]>([]);

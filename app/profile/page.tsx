@@ -67,7 +67,7 @@ const Profile: React.FC = () => {
       {" "}
       {/* Ajustez les rôles selon vos besoins */}
       <Container maxWidth="sm">
-        <Box mt={5} className="bg-white p-8 rounded shadow">
+        <Box mt={5} className="p-8 bg-white rounded shadow">
           <Typography variant="h4" gutterBottom>
             Mon Profil
           </Typography>

@@ -1,4 +1,3 @@
-import ImagePreview from "@/app/components/ImagePreview";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import {
   ActualitePayload,
@@ -16,67 +15,10 @@ const ActualitesManager: React.FC = () => {
     { id: "id", label: "ID" },
     { id: "title", label: "Titre" },
     { id: "description", label: "Description" },
-    {
-      id: "importance",
-      label: "Importance",
-      render: (row: Actualite) => {
-        const getImportanceBadgeClass = (importance: string) => {
-          switch (importance) {
-            case "Très important":
-              return "bg-red-100 text-red-800";
-            case "Important":
-              return "bg-orange-100 text-orange-800";
-            case "Modéré":
-              return "bg-green-100 text-green-800";
-            default:
-              return "bg-gray-100 text-gray-800";
-          }
-        };
-
-        return (
-          <span
-            className={`inline-flex items-center justify-center text-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getImportanceBadgeClass(
-              row.importance
-            )}`}
-          >
-            {row.importance}
-          </span>
-        );
-      },
-    },
-    {
-      id: "actif",
-      label: "Actif",
-      render: (row: Actualite) => (
-        <span
-          className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            row.actif
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {row.actif ? "Actif" : "Inactif"}
-        </span>
-      ),
-    },
-    {
-      id: "image",
-      label: "Image",
-      render: (row: Actualite) => (
-        <ImagePreview
-          src={row.image}
-          alt="Aperçu de l'actualité"
-          width={60}
-          height={60}
-        />
-      ),
-    },
-    {
-      id: "created_at",
-      label: "Créé le",
-      render: (row: Actualite) =>
-        new Date(row.created_at).toLocaleDateString("fr-FR"),
-    },
+    { id: "importance", label: "Importance" },
+    { id: "actif", label: "Actif" },
+    { id: "image", label: "Image" },
+    { id: "created_at", label: "Créé le" },
   ];
 
   const fields: Field<ActualitePayload>[] = [
