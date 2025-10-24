@@ -14,9 +14,21 @@ const POIsManager: React.FC = () => {
     { id: "type" as keyof POI, label: "Type" },
     { id: "latitude" as keyof POI, label: "Latitude" },
     { id: "longitude" as keyof POI, label: "Longitude" },
-    { id: "description" as keyof POI, label: "Description" },
-    { id: "category" as keyof POI, label: "Catégorie" },
-    { id: "address" as keyof POI, label: "Adresse" },
+    {
+      id: "description" as keyof POI,
+      label: "Description",
+      render: (row: POI) => row.description || "",
+    },
+    {
+      id: "category" as keyof POI,
+      label: "Catégorie",
+      render: (row: POI) => row.category || "",
+    },
+    {
+      id: "address" as keyof POI,
+      label: "Adresse",
+      render: (row: POI) => row.address || "",
+    },
   ];
   const fields: Field<PoiPayload>[] = [
     { name: "title", label: "Nom", required: true, type: "text" },
