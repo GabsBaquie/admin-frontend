@@ -2,9 +2,9 @@
 // app/reset-request/page.tsx
 "use client";
 
-import React, { useState } from "react";
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import React, { useState } from "react";
 
 const ResetRequest: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -14,10 +14,17 @@ const ResetRequest: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetchWithAuth("auth/reset-password-request", {
-        method: "POST",
-        body: JSON.stringify({ email }),
-      }, false);
+      await fetchWithAuth(
+        "auth/reset-password-request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        },
+        false
+      );
 
       setSuccessMessage("Un email de réinitialisation a été envoyé !");
       setErrorMessage(null);
@@ -34,7 +41,7 @@ const ResetRequest: React.FC = () => {
 
   return (
     <Container maxWidth="sm">
-      <Box mt={5} className="bg-white p-8 rounded shadow">
+      <Box mt={5} className="p-8 bg-white rounded shadow">
         <Typography variant="h4" gutterBottom>
           Demande de réinitialisation de mot de passe
         </Typography>
