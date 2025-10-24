@@ -1,8 +1,8 @@
+import ImagePreview from "@/app/components/ImagePreview";
+import ImportanceBadge from "@/app/components/ImportanceBadge";
+import StatusBadge from "@/app/components/StatusBadge";
 import ContentManager from "@/app/contents/genericT/ContentManager";
-import {
-  ActualitePayload,
-  transformActualiteToPayload,
-} from "@/app/helpers/transformActualiteToPayload";
+import { ActualitePayload } from "@/app/helpers/transformActualiteToPayload";
 import { Actualite } from "@/app/types/Actualite";
 import { Column, Field } from "@/app/types/content";
 import { Container } from "@mui/material";
@@ -15,9 +15,30 @@ const ActualitesManager: React.FC = () => {
     { id: "id", label: "ID" },
     { id: "title", label: "Titre" },
     { id: "description", label: "Description" },
-    { id: "importance", label: "Importance" },
-    { id: "actif", label: "Actif" },
-    { id: "image", label: "Image" },
+    {
+      id: "importance",
+      label: "Importance",
+      render: (row: Actualite) => (
+        <ImportanceBadge importance={row.importance} />
+      ),
+    },
+    {
+      id: "actif",
+      label: "Actif",
+      render: (row: Actualite) => <StatusBadge isActive={row.actif} />,
+    },
+    {
+      id: "image",
+      label: "Image",
+      render: (row: Actualite) => (
+        <ImagePreview
+          src={row.image || ""}
+          alt="Image de l'actualité"
+          width={60}
+          height={60}
+        />
+      ),
+    },
     { id: "created_at", label: "Créé le" },
   ];
 
@@ -65,7 +86,6 @@ const ActualitesManager: React.FC = () => {
         contentType={contentType}
         columns={columns}
         fields={fields}
-        transformData={transformActualiteToPayload}
       />
     </Container>
   );

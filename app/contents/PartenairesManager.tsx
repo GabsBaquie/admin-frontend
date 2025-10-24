@@ -1,8 +1,7 @@
+import ImagePreview from "@/app/components/ImagePreview";
+import StatusBadge from "@/app/components/StatusBadge";
 import ContentManager from "@/app/contents/genericT/ContentManager";
-import {
-  PartenairePayload,
-  transformPartenaireToPayload,
-} from "@/app/helpers/transformPartenaireToPayload";
+import { PartenairePayload } from "@/app/helpers/transformPartenaireToPayload";
 import { Partenaire } from "@/app/types/Partenaire";
 import { Column, Field } from "@/app/types/content";
 import { Container } from "@mui/material";
@@ -16,8 +15,23 @@ const PartenairesManager: React.FC = () => {
     { id: "name", label: "Nom" },
     { id: "type", label: "Type" },
     { id: "link", label: "Lien" },
-    { id: "image", label: "Logo" },
-    { id: "actif", label: "Actif" },
+    {
+      id: "image",
+      label: "Logo",
+      render: (row: Partenaire) => (
+        <ImagePreview
+          src={row.image || ""}
+          alt="Logo du partenaire"
+          width={60}
+          height={60}
+        />
+      ),
+    },
+    {
+      id: "actif",
+      label: "Actif",
+      render: (row: Partenaire) => <StatusBadge isActive={row.actif} />,
+    },
     { id: "created_at", label: "Créé le" },
   ];
 
@@ -61,7 +75,6 @@ const PartenairesManager: React.FC = () => {
         contentType={contentType}
         columns={columns}
         fields={fields}
-        transformData={transformPartenaireToPayload}
       />
     </Container>
   );

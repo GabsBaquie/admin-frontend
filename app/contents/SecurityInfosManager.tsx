@@ -1,3 +1,5 @@
+import StatusBadge from "@/app/components/StatusBadge";
+import UrgenceBadge from "@/app/components/UrgenceBadge";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { Field } from "@/app/types/content";
 import { SecurityInfo } from "@/app/types/SecurityInfo";
@@ -45,32 +47,12 @@ const SecurityInfosManager: React.FC = () => {
     {
       id: "urgence" as keyof SecurityInfo,
       label: "Urgence",
-      render: (row: SecurityInfo) => (
-        <span
-          className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            row.urgence
-              ? "bg-red-100 text-red-800"
-              : "bg-orange-100 text-orange-800"
-          }`}
-        >
-          {row.urgence ? "Urgent" : "Normal"}
-        </span>
-      ),
+      render: (row: SecurityInfo) => <UrgenceBadge isUrgent={row.urgence} />,
     },
     {
       id: "actif" as keyof SecurityInfo,
       label: "Actif",
-      render: (row: SecurityInfo) => (
-        <span
-          className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            row.actif
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {row.actif ? "Actif" : "Inactif"}
-        </span>
-      ),
+      render: (row: SecurityInfo) => <StatusBadge isActive={row.actif} />,
     },
     {
       id: "created_at" as keyof SecurityInfo,

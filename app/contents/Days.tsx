@@ -1,5 +1,6 @@
 "use client";
 
+import ImagePreview from "@/app/components/ImagePreview";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { useToast } from "@/app/context/ToastContext";
 import { DayCreateOrUpdatePayload } from "@/app/helpers/transformDayToPayload";
@@ -46,8 +47,28 @@ const DaysManager: React.FC = () => {
     { id: "id", label: "ID" },
     { id: "title", label: "Nom" },
     { id: "date", label: "Date" },
-    { id: "image", label: "Image" },
-    { id: "concerts", label: "Concerts" },
+    {
+      id: "image",
+      label: "Image",
+      render: (row: Day) => (
+        <ImagePreview
+          src={row.image || ""}
+          alt="Aperçu du jour"
+          width={60}
+          height={60}
+        />
+      ),
+    },
+    {
+      id: "concerts",
+      label: "Concerts",
+      render: (row: Day) => {
+        if (Array.isArray(row.concerts) && row.concerts.length > 0) {
+          return row.concerts.map((concert) => concert.title).join(", ");
+        }
+        return "Aucun concert";
+      },
+    },
   ];
 
   const fields: Field<DayFormData>[] = [
@@ -67,25 +88,12 @@ const DaysManager: React.FC = () => {
     },
   ];
 
-  const transformData = (data: Day): DayCreateOrUpdatePayload => {
-    const payload = {
-      title: data.title,
-      date: data.date,
-      image: data.image,
-      concertIds:
-        data.concerts?.map((concert) => concert.id) ?? data.concertIds ?? [],
-    };
-    console.log("Payload transformData:", payload);
-    return payload;
-  };
-
   return (
     <Container maxWidth="lg">
       <ContentManager<Day, DayCreateOrUpdatePayload>
         contentType={contentType}
         columns={columns}
         fields={fields}
-        transformData={transformData}
       />
     </Container>
   );
