@@ -3,7 +3,7 @@ export type Partenaire = {
   name: string;
   type: "Institution" | "Media" | "Tech" | "Autre";
   link: string;
-  logo_url: string;
+  image: string;
   logo_alt: string;
   actif: boolean;
   created_at: string;
@@ -14,7 +14,7 @@ export type PartenaireCreatePayload = {
   name: string;
   type: "Institution" | "Media" | "Tech" | "Autre";
   link: string;
-  logo_url?: string;
+  image?: string;
   logo_alt: string;
   actif: boolean;
 };

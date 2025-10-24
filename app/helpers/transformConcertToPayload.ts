@@ -25,7 +25,9 @@ export const transformConcertToPayload = (
 
       // Si c'est déjà un tableau de dayIds (depuis le formulaire)
       if (Array.isArray(concertData.dayIds)) {
-        return concertData.dayIds as number[];
+        return concertData.dayIds.filter(
+          (id): id is number => typeof id === "number" && id > 0
+        );
       }
 
       // Si c'est un objet Concert avec des days
@@ -37,13 +39,20 @@ export const transformConcertToPayload = (
 
       return [];
     })(),
-    // Ajout explicite du champ image, même s'il vaut null
-    image:
-      typeof concert.image === "string" &&
-      concert.image &&
-      !concert.image.startsWith("data:")
-        ? concert.image
-        : null,
+    // Gestion de l'image
+    image: (() => {
+      if (
+        typeof concert.image === "string" &&
+        concert.image &&
+        !concert.image.startsWith("data:")
+      ) {
+        // Image existante - la garder
+        return concert.image;
+      } else {
+        // Pas d'image - marquer pour suppression
+        return null;
+      }
+    })(),
   };
 
   console.log("Payload transformConcertToPayload:", payload);

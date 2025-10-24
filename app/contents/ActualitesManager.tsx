@@ -1,3 +1,4 @@
+import ImagePreview from "@/app/components/ImagePreview";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import {
   ActualitePayload,
@@ -19,17 +20,24 @@ const ActualitesManager: React.FC = () => {
       id: "importance",
       label: "Importance",
       render: (row: Actualite) => {
-        const importanceColors = {
-          "Très important": "#d32f2f",
-          Important: "#f57c00",
-          Modéré: "#388e3c",
+        const getImportanceBadgeClass = (importance: string) => {
+          switch (importance) {
+            case "Très important":
+              return "bg-red-100 text-red-800";
+            case "Important":
+              return "bg-orange-100 text-orange-800";
+            case "Modéré":
+              return "bg-green-100 text-green-800";
+            default:
+              return "bg-gray-100 text-gray-800";
+          }
         };
+
         return (
           <span
-            style={{
-              color: importanceColors[row.importance],
-              fontWeight: "bold",
-            }}
+            className={`inline-flex items-center justify-center text-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getImportanceBadgeClass(
+              row.importance
+            )}`}
           >
             {row.importance}
           </span>
@@ -41,49 +49,27 @@ const ActualitesManager: React.FC = () => {
       label: "Actif",
       render: (row: Actualite) => (
         <span
-          style={{
-            color: row.actif ? "#388e3c" : "#d32f2f",
-            fontWeight: "bold",
-          }}
+          className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            row.actif
+              ? "bg-green-100 text-green-800"
+              : "bg-gray-100 text-gray-800"
+          }`}
         >
-          {row.actif ? "Oui" : "Non"}
+          {row.actif ? "Actif" : "Inactif"}
         </span>
       ),
     },
     {
       id: "image",
       label: "Image",
-      render: (row: Actualite) => {
-        if (typeof row.image !== "string" || !row.image) return null;
-
-        let imageUrl = row.image;
-        if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
-          const apiBaseUrl =
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-          const assetsUrl = apiBaseUrl.replace("/api", "");
-          const cleanPath = imageUrl.startsWith("/")
-            ? imageUrl.slice(1)
-            : imageUrl;
-          imageUrl = `${assetsUrl}/${cleanPath}`;
-        }
-
-        return (
-          <img
-            src={imageUrl}
-            alt="aperçu"
-            style={{
-              maxWidth: 60,
-              maxHeight: 60,
-              borderRadius: 4,
-              background: "#eee",
-            }}
-            loading="lazy"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
-        );
-      },
+      render: (row: Actualite) => (
+        <ImagePreview
+          src={row.image}
+          alt="Aperçu de l'actualité"
+          width={60}
+          height={60}
+        />
+      ),
     },
     {
       id: "created_at",

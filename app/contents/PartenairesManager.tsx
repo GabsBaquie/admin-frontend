@@ -1,3 +1,4 @@
+import ImagePreview from "@/app/components/ImagePreview";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import {
   PartenairePayload,
@@ -30,51 +31,29 @@ const PartenairesManager: React.FC = () => {
       ),
     },
     {
-      id: "logo_url",
+      id: "image",
       label: "Logo",
-      render: (row: Partenaire) => {
-        if (typeof row.logo_url !== "string" || !row.logo_url) return null;
-
-        let imageUrl = row.logo_url;
-        if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
-          const apiBaseUrl =
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-          const assetsUrl = apiBaseUrl.replace("/api", "");
-          const cleanPath = imageUrl.startsWith("/")
-            ? imageUrl.slice(1)
-            : imageUrl;
-          imageUrl = `${assetsUrl}/${cleanPath}`;
-        }
-
-        return (
-          <img
-            src={imageUrl}
-            alt={row.logo_alt}
-            style={{
-              maxWidth: 60,
-              maxHeight: 60,
-              borderRadius: 4,
-              background: "#eee",
-            }}
-            loading="lazy"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
-        );
-      },
+      render: (row: Partenaire) => (
+        <ImagePreview
+          src={row.image}
+          alt={row.logo_alt}
+          width={60}
+          height={60}
+        />
+      ),
     },
     {
       id: "actif",
       label: "Actif",
       render: (row: Partenaire) => (
         <span
-          style={{
-            color: row.actif ? "#388e3c" : "#d32f2f",
-            fontWeight: "bold",
-          }}
+          className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            row.actif
+              ? "bg-green-100 text-green-800"
+              : "bg-gray-100 text-gray-800"
+          }`}
         >
-          {row.actif ? "Oui" : "Non"}
+          {row.actif ? "Actif" : "Inactif"}
         </span>
       ),
     },
@@ -100,7 +79,7 @@ const PartenairesManager: React.FC = () => {
         { value: "Autre", label: "Autre" },
       ],
     },
-    { name: "link", label: "Lien", required: true, type: "url" },
+    { name: "link", label: "Lien", required: true, type: "text" },
     {
       name: "logo_alt",
       label: "Texte alternatif du logo",
@@ -117,7 +96,7 @@ const PartenairesManager: React.FC = () => {
         { value: "false", label: "Non" },
       ],
     },
-    { name: "logo_url", label: "Logo", required: false, type: "image" },
+    { name: "image", label: "Logo", required: false, type: "image" },
   ];
 
   return (
