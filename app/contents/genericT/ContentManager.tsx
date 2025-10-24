@@ -1,3 +1,5 @@
+"use client";
+
 import DataTable from "@/app/components/DataTable";
 import DeleteConfirmation from "@/app/components/DeleteConfirmation";
 import FormModal from "@/app/components/FormModal";
@@ -35,7 +37,6 @@ const ContentManager = <
   contentType,
   columns,
   fields,
-  transformData,
 }: ContentManagerProps<T, U>) => {
   const queryClient = useQueryClient();
   const [state, setState] = useState<{
@@ -143,20 +144,11 @@ const ContentManager = <
 
   // handleSubmit reçoit maintenant un payload propre (U) et un fichier image optionnel
   const handleSubmit = async (data: Partial<U>, imageFile?: File) => {
-    if (!transformData) {
-      throw new Error(
-        "Vous devez fournir une fonction transformData pour nettoyer le payload avant l'envoi au backend."
-      );
-    }
-    // Toujours appliquer transformData pour convertir les types (ex: string -> number)
-    // On caste data en T via unknown pour satisfaire TypeScript
-    const payload = transformData(data as unknown as T);
-    // On filtre les champs interdits
-    const cleanPayload = omitKeys(payload, [
-      "id",
-      "createdAt",
-      "updatedAt",
-    ] as (keyof U)[]);
+    // On filtre les champs interdits directement
+    const cleanPayload = omitKeys(
+      data as U,
+      ["id", "createdAt", "updatedAt"] as (keyof U)[]
+    );
     console.log("Payload envoyé au backend :", cleanPayload);
 
     // 1. Upload de l'image si présente
@@ -238,15 +230,13 @@ const ContentManager = <
         }}
         onSubmit={handleSubmit}
         initialData={
-          currentItem && transformData
-            ? transformData(
-                omitKeys(currentItem, [
-                  "id",
-                  "createdAt",
-                  "updatedAt",
-                  "name",
-                ] as (keyof T)[]) as unknown as T
-              )
+          currentItem
+            ? (omitKeys(currentItem, [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "name",
+              ] as (keyof T)[]) as unknown as U)
             : undefined
         }
         title={

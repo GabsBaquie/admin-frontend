@@ -1,3 +1,5 @@
+"use client";
+
 import { Field } from "@/app/types/content";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageIcon from "@mui/icons-material/Image";
@@ -9,13 +11,13 @@ import {
   InputLabel,
   MenuItem,
   Modal,
-  Modal as MuiModal,
   Paper,
   Select,
   TextField,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import ImageServerManager from "./ImageServerManager";
 
 interface FormModalProps<T> {
   open: boolean;
@@ -42,35 +44,38 @@ const FormModal = <T extends WithImage>({
 }: FormModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData || {});
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
-  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [serverImages, setServerImages] = useState<string[]>([]);
-  const [showImageSelector, setShowImageSelector] = useState(false);
-
-  // Récupère la liste des images du serveur
-  const fetchServerImages = async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/list`);
-      const images = await res.json();
-      setServerImages(images);
-    } catch {
-      alert("Erreur lors de la récupération des images du serveur");
-    }
-  };
+  const [showImageManager, setShowImageManager] = useState(false);
 
   useEffect(() => {
-    if (open && initialData) {
-      setFormData(initialData);
-      // Si une image existe déjà, on la met en preview
-      if (initialData.image) {
-        // Si l'image est déjà une URL complète, on la garde, sinon on la complète
-        setImagePreview(initialData.image);
+    if (open) {
+      if (initialData) {
+        setFormData(initialData);
+        // Si une image existe déjà, on la met en preview
+        if (initialData.image) {
+          // Si l'image est déjà une URL complète, on la garde, sinon on la complète
+          setImagePreview(initialData.image);
+        } else {
+          setImagePreview(null);
+        }
       } else {
+        // Initialisation pour la création - initialiser les champs avec des valeurs par défaut
+        const initialFormData: Partial<T> = {};
+        fields.forEach((field) => {
+          if (field.type === "multiselect" && field.multiple) {
+            (initialFormData as Record<string, unknown>)[field.name as string] =
+              [];
+          } else if (field.type === "select" && field.options) {
+            // Initialiser les champs select avec la première option
+            (initialFormData as Record<string, unknown>)[field.name as string] =
+              field.options[0]?.value || "";
+          }
+        });
+        setFormData(initialFormData);
         setImagePreview(null);
       }
-      setSelectedImageFile(null);
     }
-  }, [open, initialData]);
+  }, [open, initialData, fields]);
 
   const validateField = (
     field: Field<T>,
@@ -86,7 +91,12 @@ const FormModal = <T extends WithImage>({
     name: keyof T,
     value: string | string[] | number | number[]
   ) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log(`FormModal handleChange - ${String(name)}:`, value);
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: value };
+      console.log("FormModal new formData:", newData);
+      return newData;
+    });
 
     const field = fields.find((f) => f.name === name);
     if (field) {
@@ -98,34 +108,10 @@ const FormModal = <T extends WithImage>({
     }
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Vérifier la taille du fichier (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("L'image ne doit pas dépasser 5MB");
-        return;
-      }
-
-      // Vérifier le type de fichier
-      if (!file.type.startsWith("image/")) {
-        alert("Veuillez sélectionner un fichier image valide");
-        return;
-      }
-
-      setSelectedImageFile(file);
-
-      // Créer une preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log("FormModal handleSubmit - formData:", formData);
 
     const newErrors: Partial<Record<keyof T, string>> = {};
     fields.forEach((field) => {
@@ -146,7 +132,8 @@ const FormModal = <T extends WithImage>({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 || mode === "edit") {
-      onSubmit(formData as Partial<T>, selectedImageFile || undefined);
+      console.log("FormModal onSubmit - sending data:", formData);
+      onSubmit(formData as Partial<T>);
     }
   };
 
@@ -221,52 +208,41 @@ const FormModal = <T extends WithImage>({
     if (field.name === "image") {
       return (
         <Box key={String(field.name)} sx={{ mb: 2 }}>
-          <input
-            accept="image/*"
-            style={{ display: "none" }}
-            id="image-upload"
-            type="file"
-            onChange={handleImageChange}
-          />
-          <label htmlFor="image-upload">
-            <Button
-              variant="outlined"
-              component="span"
-              startIcon={<ImageIcon />}
-              sx={{ mb: 2 }}
-            >
-              Choisir une image
-            </Button>
-          </label>
           <Button
             variant="outlined"
-            sx={{ ml: 2, mb: 2 }}
-            onClick={async () => {
-              await fetchServerImages();
-              setShowImageSelector(true);
+            sx={{ mb: 2 }}
+            startIcon={<ImageIcon />}
+            onClick={() => {
+              setShowImageManager(true);
             }}
           >
-            Choisir une image du serveur
+            Choisir une image serveur
           </Button>
-          {selectedImageFile && (
-            <Typography variant="caption" display="block" sx={{ mb: 1 }}>
-              Fichier sélectionné : {selectedImageFile.name} (
-              {(selectedImageFile.size / 1024 / 1024).toFixed(2)} MB)
-            </Typography>
-          )}
           {imagePreview && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
               {(() => {
+                console.log("Rendu imagePreview:", imagePreview);
                 let previewUrl = imagePreview;
                 if (
                   typeof previewUrl === "string" &&
                   !previewUrl.startsWith("http") &&
                   !previewUrl.startsWith("data:")
                 ) {
-                  previewUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}${previewUrl}`;
+                  // Utiliser l'URL de l'API pour servir les images
+                  const apiBaseUrl =
+                    process.env.NEXT_PUBLIC_API_URL ||
+                    "http://localhost:3000/api";
+                  const assetsUrl = apiBaseUrl.replace("/api", "");
+                  // Enlever le slash initial s'il existe pour éviter les doubles slashes
+                  const cleanPath = previewUrl.startsWith("/")
+                    ? previewUrl.slice(1)
+                    : previewUrl;
+                  previewUrl = `${assetsUrl}/${cleanPath}`;
                 }
+                console.log("URL finale pour preview:", previewUrl);
                 return (
                   <img
+                    key={previewUrl} // Force le re-rendu avec une clé unique
                     src={previewUrl}
                     alt="Preview"
                     style={{
@@ -285,7 +261,6 @@ const FormModal = <T extends WithImage>({
                 sx={{ mt: 1 }}
                 onClick={() => {
                   setImagePreview(null);
-                  setSelectedImageFile(null);
                   setFormData((prev) => ({ ...prev, image: null }));
                 }}
               >
@@ -293,50 +268,6 @@ const FormModal = <T extends WithImage>({
               </Button>
             </Box>
           )}
-          {/* Modal de sélection d'image serveur */}
-          <MuiModal
-            open={showImageSelector}
-            onClose={() => setShowImageSelector(false)}
-          >
-            <Box
-              sx={{
-                p: 3,
-                bgcolor: "#fff",
-                borderRadius: 2,
-                maxWidth: 400,
-                mx: "auto",
-                my: 8,
-              }}
-            >
-              <Typography variant="h6">Images disponibles</Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2 }}>
-                {serverImages.map((img) => (
-                  <img
-                    key={img}
-                    src={
-                      img.startsWith("http")
-                        ? img
-                        : `${process.env.NEXT_PUBLIC_ASSETS_URL}${img}`
-                    }
-                    alt={img}
-                    style={{
-                      width: 80,
-                      height: 80,
-                      objectFit: "cover",
-                      cursor: "pointer",
-                      border: "2px solid #eee",
-                    }}
-                    onClick={() => {
-                      setImagePreview(img.startsWith("http") ? img : `${img}`);
-                      setFormData((prev) => ({ ...prev, image: img }));
-                      setSelectedImageFile(null);
-                      setShowImageSelector(false);
-                    }}
-                  />
-                ))}
-              </Box>
-            </Box>
-          </MuiModal>
         </Box>
       );
     }
@@ -368,90 +299,102 @@ const FormModal = <T extends WithImage>({
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="form-modal-title"
-      keepMounted
-    >
-      <Paper
-        elevation={3}
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: { xs: "90%", sm: 500 },
-          maxHeight: "90vh",
-          overflowY: "auto",
-          bgcolor: "background.paper",
-          borderRadius: 2,
-          p: 0,
-        }}
+    <>
+      <Modal
+        open={open}
+        onClose={onClose}
+        aria-labelledby="form-modal-title"
+        keepMounted
       >
-        <Box
+        <Paper
+          elevation={3}
           sx={{
-            p: 3,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "90%", sm: 500 },
+            maxHeight: "90vh",
+            overflowY: "auto",
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            p: 0,
           }}
         >
-          <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
-            {title}
-          </Typography>
-          <IconButton onClick={onClose} size="small">
-            <CloseIcon />
-          </IconButton>
-        </Box>
+          <Box
+            sx={{
+              p: 3,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
+              {title}
+            </Typography>
+            <IconButton onClick={onClose} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
 
-        <Box sx={{ p: 3 }}>
-          <form onSubmit={handleSubmit}>
-            {fields.map((field) => (
-              <Box key={String(field.name)} sx={{ mb: 3 }}>
-                {renderField(field)}
+          <Box sx={{ p: 3 }}>
+            <form onSubmit={handleSubmit}>
+              {fields.map((field) => (
+                <Box key={String(field.name)} sx={{ mb: 3 }}>
+                  {renderField(field)}
+                </Box>
+              ))}
+              <Box
+                sx={{
+                  mt: 4,
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 2,
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                  pt: 3,
+                }}
+              >
+                <Button
+                  onClick={onClose}
+                  variant="outlined"
+                  sx={{
+                    minWidth: 100,
+                    textTransform: "none",
+                    fontWeight: 500,
+                  }}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{
+                    minWidth: 100,
+                    textTransform: "none",
+                    fontWeight: 500,
+                  }}
+                >
+                  {mode === "create" ? "Créer" : "Modifier"}
+                </Button>
               </Box>
-            ))}
-            <Box
-              sx={{
-                mt: 4,
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 2,
-                borderTop: "1px solid",
-                borderColor: "divider",
-                pt: 3,
-              }}
-            >
-              <Button
-                onClick={onClose}
-                variant="outlined"
-                sx={{
-                  minWidth: 100,
-                  textTransform: "none",
-                  fontWeight: 500,
-                }}
-              >
-                Annuler
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                  minWidth: 100,
-                  textTransform: "none",
-                  fontWeight: 500,
-                }}
-              >
-                {mode === "create" ? "Créer" : "Modifier"}
-              </Button>
-            </Box>
-          </form>
-        </Box>
-      </Paper>
-    </Modal>
+            </form>
+          </Box>
+        </Paper>
+      </Modal>
+
+      {/* Gestionnaire d'images serveur */}
+      <ImageServerManager
+        open={showImageManager}
+        onClose={() => setShowImageManager(false)}
+        onImageSelect={(imageUrl) => {
+          setImagePreview(imageUrl);
+          setFormData({ ...formData, image: imageUrl });
+        }}
+      />
+    </>
   );
 };
 

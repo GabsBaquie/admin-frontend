@@ -1,9 +1,10 @@
 // app/reset-password/[token]/page.tsx
 "use client";
 
-import React, { useState } from "react";
+import { API_BASE_URL } from "@/app/utils/api";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import { useRouter, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 interface ResetPasswordResponse {
   message?: string;
@@ -23,7 +24,7 @@ const ResetPassword: React.FC = () => {
   if (!token) {
     return (
       <Container maxWidth="sm">
-        <Box mt={10} className="bg-white p-8 rounded shadow">
+        <Box mt={10} className="p-8 bg-white rounded shadow">
           <Typography variant="h4" gutterBottom>
             Jeton de réinitialisation manquant.
           </Typography>
@@ -49,18 +50,18 @@ const ResetPassword: React.FC = () => {
       return;
     }
 
+    console.log("Token reçu:", token);
+    console.log("Nouveau mot de passe:", newPassword);
+
     try {
       // Effectuer la requête de réinitialisation du mot de passe avec fetch
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"}/auth/reset-password`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token, newPassword }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token, newPassword }),
+      });
 
       const data: ResetPasswordResponse = await response.json();
 
@@ -94,7 +95,7 @@ const ResetPassword: React.FC = () => {
 
   return (
     <Container maxWidth="sm">
-      <Box mt={10} className="bg-white p-8 rounded shadow">
+      <Box mt={10} className="p-8 bg-white rounded shadow">
         <Typography variant="h4" gutterBottom>
           Réinitialiser votre mot de passe
         </Typography>
@@ -124,7 +125,8 @@ const ResetPassword: React.FC = () => {
             variant="contained"
             color="primary"
             fullWidth
-            disabled={isSubmitting}>
+            disabled={isSubmitting}
+          >
             {isSubmitting
               ? "Réinitialisation..."
               : "Réinitialiser le mot de passe"}

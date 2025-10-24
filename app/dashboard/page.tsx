@@ -1,30 +1,41 @@
-'use client';
+"use client";
 
-import { Box, Button, Container, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import { Box, Button, Container, Typography } from "@mui/material";
+import React, { useState } from "react";
 
-import ConcertsManager from '@/app/contents/ConcertsManager';
-import DaysManager from '@/app/contents/Days';
-import POIsManager from '@/app/contents/POI';
-import SecurityInfosManager from '@/app/contents/SecurityInfosManager';
+export const dynamic = "force-dynamic";
 
-import Link from 'next/link';
-import ProtectedRoute from '../components/ProtectedRoute';
-import Sidebar from '../components/Sidebar';
+import ActualitesManager from "@/app/contents/ActualitesManager";
+import ConcertsManager from "@/app/contents/ConcertsManager";
+import DaysManager from "@/app/contents/Days";
+import PartenairesManager from "@/app/contents/PartenairesManager";
+import POIsManager from "@/app/contents/POI";
+import SecurityInfosManager from "@/app/contents/SecurityInfosManager";
+import ImagesPage from "@/app/images/page";
+
+import ProtectedRoute from "@/app/components/ProtectedRoute";
+import Sidebar from "@/app/components/Sidebar";
+import Link from "next/link";
 
 const Dashboard: React.FC = () => {
-  const [selectedSection, setSelectedSection] = useState<string>('days'); // Section par défaut
+  const [selectedSection, setSelectedSection] = useState<string>("days"); // Section par défaut
 
   const renderSection = () => {
     switch (selectedSection) {
-      case 'pois':
+      case "pois":
         return <POIsManager />;
-      case 'securityinfos':
+      case "securityinfos":
         return <SecurityInfosManager />;
-      case 'days':
+      case "days":
         return <DaysManager />;
-      case 'concerts':
+      case "concerts":
         return <ConcertsManager />;
+      case "actualites":
+        return <ActualitesManager />;
+      case "partenaires":
+        return <PartenairesManager />;
+      case "images":
+        return <ImagesPage />;
       default:
         return <Typography variant="h6">Section non trouvée</Typography>;
     }
@@ -32,7 +43,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <ProtectedRoute>
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: "flex" }}>
         <Sidebar
           onSelect={setSelectedSection}
           selectedSection={selectedSection}

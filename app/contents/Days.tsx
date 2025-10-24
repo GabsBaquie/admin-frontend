@@ -1,3 +1,9 @@
+"use client";
+
+import { 
+  ImageRenderer, 
+  ConcertsRenderer 
+} from "@/app/components/ColumnRenderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { useToast } from "@/app/context/ToastContext";
 import { DayCreateOrUpdatePayload } from "@/app/helpers/transformDayToPayload";
@@ -17,6 +23,7 @@ interface DayFormData {
   id?: number;
   title: string;
   date: string;
+  image?: string;
   concertIds: number[];
 }
 
@@ -42,24 +49,30 @@ const DaysManager: React.FC = () => {
   const columns: Column<Day>[] = [
     { id: "id", label: "ID" },
     { id: "title", label: "Nom" },
+    { id: "date", label: "Date" },
     {
-      id: "date",
-      label: "Date",
-      render: (row: Day) => new Date(row.date).toLocaleDateString(),
+      id: "image",
+      label: "Image",
+      render: (row: Day) => (
+        <ImageRenderer
+          src={row.image || ""}
+          alt="Aperçu du jour"
+          width={60}
+          height={60}
+        />
+      ),
     },
     {
       id: "concerts",
       label: "Concerts",
-      render: (row: Day) =>
-        Array.isArray(row.concerts) && row.concerts.length > 0
-          ? row.concerts.map((concert) => concert.title).join(" , ")
-          : "Aucun concert",
+      render: (row: Day) => <ConcertsRenderer concerts={row.concerts || []} />,
     },
   ];
 
   const fields: Field<DayFormData>[] = [
     { name: "title", label: "Nom", required: true, type: "text" },
     { name: "date", label: "Date", required: true, type: "date" },
+    { name: "image", label: "Image", required: false, type: "image" },
     {
       name: "concertIds",
       label: "Concerts",
@@ -73,24 +86,12 @@ const DaysManager: React.FC = () => {
     },
   ];
 
-  const transformData = (data: Day): DayCreateOrUpdatePayload => {
-    const payload = {
-      title: data.title,
-      date: data.date,
-      concertIds:
-        data.concerts?.map((concert) => concert.id) ?? data.concertIds ?? [],
-    };
-    console.log("Payload transformData:", payload);
-    return payload;
-  };
-
   return (
     <Container maxWidth="lg">
       <ContentManager<Day, DayCreateOrUpdatePayload>
         contentType={contentType}
         columns={columns}
         fields={fields}
-        transformData={transformData}
       />
     </Container>
   );

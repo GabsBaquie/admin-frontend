@@ -76,6 +76,16 @@ export const fetchWithAuth = async <T>(
   try {
     const response = await fetch(url, fetchOptions);
     if (!response.ok) {
+      // Gestion spéciale pour les erreurs d'authentification
+      if (response.status === 401) {
+        // Supprimer le token expiré et rediriger vers la page de connexion
+        localStorage.removeItem("token");
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+        throw new Error("Session expirée - Redirection vers la connexion");
+      }
+
       let errorMessage = `Erreur HTTP ${response.status}`;
       try {
         const errorData = await response.json();

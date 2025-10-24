@@ -1,3 +1,6 @@
+"use client";
+
+import ImagePreview from "@/app/components/ImagePreview";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { useToast } from "@/app/context/ToastContext";
 import {
@@ -54,32 +57,14 @@ const ConcertsManager: React.FC = () => {
     {
       id: "image",
       label: "Image",
-      render: (row: Concert) => {
-        // On vérifie que row.image est bien une string non vide
-        if (typeof row.image !== "string" || !row.image) return null;
-
-        let imageUrl = row.image;
-        if (!imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
-          imageUrl = `${process.env.NEXT_PUBLIC_ASSETS_URL}${imageUrl}`;
-        }
-
-        return (
-          <img
-            src={imageUrl}
-            alt="aperçu"
-            style={{
-              maxWidth: 60,
-              maxHeight: 60,
-              borderRadius: 4,
-              background: "#eee",
-            }}
-            loading="lazy"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
-        );
-      },
+      render: (row: Concert) => (
+        <ImagePreview
+          src={row.image}
+          alt="Aperçu du concert"
+          width={60}
+          height={60}
+        />
+      ),
     },
     {
       id: "days",

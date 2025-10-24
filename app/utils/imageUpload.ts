@@ -49,19 +49,30 @@ export const uploadImage = async (file: File): Promise<string> => {
 };
 
 export const validateImageFile = (file: File): string | null => {
+  // Vérifier que le fichier existe et a un nom
+  if (!file || !file.name) {
+    return "Fichier invalide";
+  }
+
   // Vérifier la taille (max 5MB)
   if (file.size > 5 * 1024 * 1024) {
     return "L'image ne doit pas dépasser 5MB";
   }
 
   // Vérifier le type
-  if (!file.type.startsWith("image/")) {
+  if (!file.type || !file.type.startsWith("image/")) {
     return "Veuillez sélectionner un fichier image valide";
   }
 
   // Vérifier les extensions autorisées
   const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
   const fileName = file.name.toLowerCase();
+
+  // Protection contre les noms de fichiers null/undefined
+  if (!fileName) {
+    return "Nom de fichier invalide";
+  }
+
   const hasValidExtension = allowedExtensions.some((ext) =>
     fileName.endsWith(ext)
   );

@@ -1,23 +1,25 @@
+"use client";
+
 // Le DataTable affichera une liste de contenus avec des fonctionnalités avancées telles que la pagination, le tri et le filtrage.
-import React, { useState } from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
+  IconButton,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Paper,
-  IconButton,
   TablePagination,
+  TableRow,
   TableSortLabel,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import React, { useState } from "react";
 
 interface DataTableProps<T extends { id: number }> {
-  columns: { 
-    id: keyof T; 
+  columns: {
+    id: keyof T;
     label: string;
     render?: (row: T) => React.ReactNode;
   }[];
@@ -97,11 +99,13 @@ const DataTable = <T extends { id: number }>({
               {columns.map((column) => (
                 <TableCell
                   key={String(column.id)}
-                  sortDirection={orderBy === column.id ? order : false}>
+                  sortDirection={orderBy === column.id ? order : false}
+                >
                   <TableSortLabel
                     active={orderBy === column.id}
                     direction={orderBy === column.id ? order : "asc"}
-                    onClick={() => handleRequestSort(column.id)}>
+                    onClick={() => handleRequestSort(column.id)}
+                  >
                     {column.label}
                   </TableSortLabel>
                 </TableCell>
@@ -116,14 +120,19 @@ const DataTable = <T extends { id: number }>({
                 <TableRow hover key={row.id}>
                   {columns.map((column) => (
                     <TableCell key={String(column.id)}>
-                      {column.render ? column.render(row) : String(row[column.id])}
+                      {column.render
+                        ? column.render(row)
+                        : String(row[column.id])}
                     </TableCell>
                   ))}
                   <TableCell>
                     <IconButton onClick={() => onEdit(row)} aria-label="edit">
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => onDelete(row)} aria-label="delete">
+                    <IconButton
+                      onClick={() => onDelete(row)}
+                      aria-label="delete"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
