@@ -1,4 +1,5 @@
 // app/context/AuthContext.tsx
+"use client";
 
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 import jwtDecode from "jwt-decode"; // Import par défaut
