@@ -1,3 +1,5 @@
+"use client";
+
 import { Field } from "@/app/types/content";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageIcon from "@mui/icons-material/Image";

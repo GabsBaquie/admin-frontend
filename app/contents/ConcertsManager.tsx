@@ -1,3 +1,5 @@
+"use client";
+
 import ImagePreview from "@/app/components/ImagePreview";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { useToast } from "@/app/context/ToastContext";

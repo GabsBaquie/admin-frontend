@@ -1,3 +1,5 @@
+"use client";
+
 import DataTable from "@/app/components/DataTable";
 import DeleteConfirmation from "@/app/components/DeleteConfirmation";
 import FormModal from "@/app/components/FormModal";

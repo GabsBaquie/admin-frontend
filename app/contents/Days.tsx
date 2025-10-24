@@ -1,3 +1,5 @@
+"use client";
+
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { useToast } from "@/app/context/ToastContext";
 import { DayCreateOrUpdatePayload } from "@/app/helpers/transformDayToPayload";
