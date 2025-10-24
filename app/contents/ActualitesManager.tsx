@@ -39,7 +39,23 @@ const ActualitesManager: React.FC = () => {
         />
       ),
     },
-    { id: "created_at", label: "Créé le" },
+    {
+      id: "created_at",
+      label: "Créé le",
+      render: (row: Actualite) => {
+        if (row.created_at) {
+          const date = new Date(row.created_at);
+          return date.toLocaleDateString("fr-FR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        }
+        return "";
+      },
+    },
   ];
 
   const fields: Field<ActualitePayload>[] = [
