@@ -1,5 +1,3 @@
-// Formatters utilitaires
-
 export const formatDate = (date: string | Date | null): string => {
   if (!date) return "";
 

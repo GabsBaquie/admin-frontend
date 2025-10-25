@@ -1,5 +1,3 @@
-// frontend/src/components/Sidebar.tsx
-
 import {
   Drawer,
   List,
@@ -16,6 +14,7 @@ import BusinessIcon from "@mui/icons-material/Business";
 import EventIcon from "@mui/icons-material/Event";
 import ImageIcon from "@mui/icons-material/Image";
 import MapIcon from "@mui/icons-material/Map";
+import PeopleIcon from "@mui/icons-material/People";
 import SecurityIcon from "@mui/icons-material/Security";
 
 interface SidebarProps {
@@ -27,8 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect, selectedSection }) => {
   const drawerWidth = 240;
 
   const menuItems = [
-    // { text: "Utilisateurs", icon: <PeopleIcon />, section: "users" },
-
+    { text: "Utilisateurs", icon: <PeopleIcon />, section: "users" },
     { text: "Days", icon: <EventIcon />, section: "days" },
     { text: "Concerts", icon: <EventIcon />, section: "concerts" },
     { text: "POIs", icon: <MapIcon />, section: "pois" },

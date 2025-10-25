@@ -50,12 +50,6 @@ const ImagesPage: React.FC = () => {
     setShowSuccess(true);
   };
 
-  const handleImageRenamed = (oldUrl: string, newUrl: string) => {
-    setImages(images.map((img) => (img === oldUrl ? newUrl : img)));
-    setSuccessMessage("Image renommée avec succès !");
-    setShowSuccess(true);
-  };
-
   return (
     <PageLayout
       title="Gestion des Images Serveur"
@@ -83,7 +77,6 @@ const ImagesPage: React.FC = () => {
         images={images}
         loading={loading}
         onImageDeleted={handleImageDeleted}
-        onImageRenamed={handleImageRenamed}
         onError={setError}
       />
 

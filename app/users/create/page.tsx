@@ -1,4 +1,3 @@
-// app/users/create/page.tsx
 "use client";
 
 import ProtectedRoute from "@/app/components/ProtectedRoute";
@@ -26,14 +25,13 @@ const CreateUser: React.FC = () => {
     try {
       await fetchWithAuth("admin/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, // Force le header pour l'API
-        body: JSON.stringify({ username, email, password, role }), // Force le body stringifié
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password, role }),
       });
       router.push("/users");
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message || "Une erreur inattendue s'est produite.");
-        console.error("Create user error:", err);
       }
     }
   };
@@ -41,7 +39,7 @@ const CreateUser: React.FC = () => {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <Container maxWidth="sm">
-        <Box mt={5} className="bg-white p-8 rounded shadow">
+        <Box mt={5} className="p-8 bg-white rounded shadow">
           <Typography variant="h4" gutterBottom>
             Ajouter un Utilisateur
           </Typography>

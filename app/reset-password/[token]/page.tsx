@@ -1,4 +1,3 @@
-// app/reset-password/[token]/page.tsx
 "use client";
 
 import { API_BASE_URL } from "@/app/utils/api";
@@ -20,7 +19,6 @@ const ResetPassword: React.FC = () => {
   const params = useParams();
   const token = params.token as string | undefined;
 
-  // Vérifiez si le token existe
   if (!token) {
     return (
       <Container maxWidth="sm">
@@ -43,18 +41,13 @@ const ResetPassword: React.FC = () => {
     setError(null);
     setMessage(null);
 
-    // Vérifiez que les mots de passe correspondent
     if (newPassword !== confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
       setIsSubmitting(false);
       return;
     }
 
-    console.log("Token reçu:", token);
-    console.log("Nouveau mot de passe:", newPassword);
-
     try {
-      // Effectuer la requête de réinitialisation du mot de passe avec fetch
       const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: "POST",
         headers: {
@@ -66,7 +59,6 @@ const ResetPassword: React.FC = () => {
       const data: ResetPasswordResponse = await response.json();
 
       if (!response.ok) {
-        // Si la réponse n'est pas ok, lancez une erreur avec le message du serveur
         throw new Error(
           data.message || "Erreur lors de la réinitialisation du mot de passe."
         );
@@ -74,7 +66,6 @@ const ResetPassword: React.FC = () => {
 
       setMessage("Mot de passe réinitialisé avec succès !");
 
-      // Rediriger vers la page de connexion après un délai
       setTimeout(() => {
         router.push("/login");
       }, 3000);

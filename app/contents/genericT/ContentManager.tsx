@@ -18,7 +18,6 @@ interface ContentManagerProps<T extends { id: number; createdAt?: string }, U> {
   transformData?: (data: T) => U;
 }
 
-// Helper pour omettre des clés d'un objet
 function omitKeys<T extends object, K extends keyof T>(
   obj: T,
   keys: K[]
@@ -73,7 +72,6 @@ const ContentManager = <
       fetchWithAuth<T[]>(`${contentType}`, { method: "GET" }),
   });
 
-  // mutationHandler n'a plus besoin de gérer l'upload d'image
   const mutationHandler = async (
     method: "POST" | "PUT" | "DELETE",
     url: string,
@@ -108,7 +106,6 @@ const ContentManager = <
 
   const updateMutation = useMutation({
     mutationFn: async ({ data }: { data: U }) =>
-      // On récupère l'id depuis currentItem pour l'URL, pas dans le payload
       mutationHandler("PUT", `${contentType}/${currentItem?.id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [contentType] });
@@ -142,21 +139,16 @@ const ContentManager = <
   const handleDelete = (item: T) =>
     setState((prev) => ({ ...prev, currentItem: item, isDeleteOpen: true }));
 
-  // handleSubmit reçoit maintenant un payload propre (U) et un fichier image optionnel
   const handleSubmit = async (data: Partial<U>, imageFile?: File) => {
-    // On filtre les champs interdits directement
     const cleanPayload = omitKeys(
       data as U,
       ["id", "createdAt", "updatedAt"] as (keyof U)[]
     );
-    console.log("Payload envoyé au backend :", cleanPayload);
 
-    // 1. Upload de l'image si présente
     let imageUrl: string | undefined;
     if (imageFile) {
       try {
         imageUrl = await uploadImage(imageFile);
-        console.log("Image uploadée avec succès:", imageUrl);
       } catch (error) {
         console.error("Erreur lors de l'upload de l'image:", error);
         setNotification("Erreur lors de l'upload de l'image", "error");
@@ -164,12 +156,10 @@ const ContentManager = <
       }
     }
 
-    // 2. Ajoute l'URL de l'image au payload si présente
     const finalPayload = imageUrl
       ? { ...cleanPayload, image: imageUrl }
       : cleanPayload;
 
-    // 3. Envoie la mutation
     if (currentItem) {
       updateMutation.mutate({ data: finalPayload as U });
     } else {

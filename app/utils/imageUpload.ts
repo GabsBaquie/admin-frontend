@@ -4,8 +4,6 @@ export const uploadImage = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("image", file);
 
-  console.log("[uploadImage] Début upload du fichier :", file);
-
   // Utilise fetch natif pour avoir l'objet Response
   const response = await fetch(
     `${API_BASE_URL.replace(/\/+$/, "")}/upload/image`,
@@ -20,10 +18,7 @@ export const uploadImage = async (file: File): Promise<string> => {
     }
   );
 
-  console.log("[uploadImage] Status HTTP :", response.status);
-
   const text = await response.text();
-  console.log("[uploadImage] Réponse brute upload image:", text);
 
   if (!response.ok) {
     console.error("[uploadImage] Réponse non OK:", response.status, text);
@@ -33,7 +28,6 @@ export const uploadImage = async (file: File): Promise<string> => {
   let result: { image?: string; [key: string]: unknown };
   try {
     result = JSON.parse(text);
-    console.log("[uploadImage] JSON parsé :", result);
   } catch (e) {
     console.error("[uploadImage] Erreur de parsing JSON :", e, text);
     throw new Error("Réponse du backend non JSON : " + text);
@@ -44,7 +38,6 @@ export const uploadImage = async (file: File): Promise<string> => {
     throw new Error("Pas d'URL image retournée");
   }
 
-  console.log("[uploadImage] Succès, URL image :", result.image);
   return result.image;
 };
 

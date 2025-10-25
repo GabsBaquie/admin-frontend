@@ -27,7 +27,6 @@ const transformSecurityInfoToPayload = (data: Partial<SecurityInfo>) => ({
 const SecurityInfosManager: React.FC = () => {
   const contentType = "securityInfos";
 
-  // Fonction pour formater les dates
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);

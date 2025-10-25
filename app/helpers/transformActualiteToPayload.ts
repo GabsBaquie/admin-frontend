@@ -25,7 +25,6 @@ export const transformActualiteToPayload = (
     })(),
   };
 
-  console.log("Payload transformActualiteToPayload:", payload);
   return payload as ActualiteCreatePayload;
 };
 

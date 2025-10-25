@@ -1,8 +1,7 @@
-// app/components/ChangePassword.tsx
 "use client";
 
-import React, { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
+import React, { useState } from "react";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 const ChangePassword: React.FC = () => {
@@ -43,7 +42,6 @@ const ChangePassword: React.FC = () => {
         setError("Une erreur inconnue s'est produite.");
       }
       setSuccess(null);
-      console.error("Erreur lors du changement de mot de passe :", err);
     }
   };
 

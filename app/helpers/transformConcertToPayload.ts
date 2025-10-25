@@ -55,6 +55,5 @@ export const transformConcertToPayload = (
     })(),
   };
 
-  console.log("Payload transformConcertToPayload:", payload);
   return payload as ConcertPayload;
 };

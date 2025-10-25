@@ -52,22 +52,18 @@ const FormModal = <T extends WithImage>({
     if (open) {
       if (initialData) {
         setFormData(initialData);
-        // Si une image existe déjà, on la met en preview
         if (initialData.image) {
-          // Si l'image est déjà une URL complète, on la garde, sinon on la complète
           setImagePreview(initialData.image);
         } else {
           setImagePreview(null);
         }
       } else {
-        // Initialisation pour la création - initialiser les champs avec des valeurs par défaut
         const initialFormData: Partial<T> = {};
         fields.forEach((field) => {
           if (field.type === "multiselect" && field.multiple) {
             (initialFormData as Record<string, unknown>)[field.name as string] =
               [];
           } else if (field.type === "select" && field.options) {
-            // Initialiser les champs select avec la première option
             (initialFormData as Record<string, unknown>)[field.name as string] =
               field.options[0]?.value || "";
           }
@@ -98,10 +94,8 @@ const FormModal = <T extends WithImage>({
     name: keyof T,
     value: string | string[] | number | number[]
   ) => {
-    console.log(`FormModal handleChange - ${String(name)}:`, value);
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
-      console.log("FormModal new formData:", newData);
       return newData;
     });
 
@@ -117,8 +111,6 @@ const FormModal = <T extends WithImage>({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log("FormModal handleSubmit - formData:", formData);
 
     const newErrors: Partial<Record<keyof T, string>> = {};
     fields.forEach((field) => {
@@ -139,7 +131,6 @@ const FormModal = <T extends WithImage>({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 || mode === "edit") {
-      console.log("FormModal onSubmit - sending data:", formData);
       onSubmit(formData as Partial<T>);
     }
   };
@@ -237,12 +228,10 @@ const FormModal = <T extends WithImage>({
                   !previewUrl.startsWith("http") &&
                   !previewUrl.startsWith("data:")
                 ) {
-                  // Utiliser l'URL de l'API pour servir les images
                   const apiBaseUrl =
                     process.env.NEXT_PUBLIC_API_URL ||
                     "http://localhost:3000/api";
                   const assetsUrl = apiBaseUrl.replace("/api", "");
-                  // Enlever le slash initial s'il existe pour éviter les doubles slashes
                   const cleanPath = previewUrl.startsWith("/")
                     ? previewUrl.slice(1)
                     : previewUrl;

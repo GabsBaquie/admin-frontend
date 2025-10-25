@@ -1,4 +1,3 @@
-// app/users/edit/[id]/page.tsx
 "use client";
 
 import ProtectedRoute from "@/app/components/ProtectedRoute";
@@ -52,7 +51,6 @@ const EditUser: React.FC = () => {
       setLoading(false);
     } catch (err) {
       if (err instanceof Error) {
-        console.error("Fetch user error:", err);
         setError(
           err.message ||
             "Erreur lors de la récupération des données de l'utilisateur"
@@ -83,7 +81,6 @@ const EditUser: React.FC = () => {
       }, 2000); // Redirection après 2 secondes pour laisser le temps d'afficher le message de succès
     } catch (err) {
       if (err instanceof Error) {
-        console.error("Update user error:", err);
         setError(
           err.message || "Erreur lors de la mise à jour de l'utilisateur"
         );

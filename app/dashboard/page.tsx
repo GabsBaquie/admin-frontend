@@ -11,17 +11,19 @@ import DaysManager from "@/app/contents/Days";
 import PartenairesManager from "@/app/contents/PartenairesManager";
 import POIsManager from "@/app/contents/POI";
 import SecurityInfosManager from "@/app/contents/SecurityInfosManager";
+import UsersManager from "@/app/contents/UsersManager";
 import ImagesPage from "@/app/images/page";
 
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Sidebar from "@/app/components/Sidebar";
-import Link from "next/link";
 
 const Dashboard: React.FC = () => {
-  const [selectedSection, setSelectedSection] = useState<string>("days"); // Section par défaut
+  const [selectedSection, setSelectedSection] = useState<string>("days");
 
   const renderSection = () => {
     switch (selectedSection) {
+      case "users":
+        return <UsersManager />;
       case "pois":
         return <POIsManager />;
       case "securityinfos":
@@ -55,16 +57,13 @@ const Dashboard: React.FC = () => {
                 Tableau de Bord Admin
               </Typography>
               <Box mt={3} display="flex" gap={2}>
-                <Link href="/users/create" passHref>
-                  <Button variant="contained" color="primary">
-                    Créer un Utilisateur
-                  </Button>
-                </Link>
-                <Link href="/users" passHref>
-                  <Button variant="contained" color="primary">
-                    Gestion des Utilisateurs
-                  </Button>
-                </Link>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setSelectedSection("users")}
+                >
+                  Gestion des Utilisateurs
+                </Button>
               </Box>
             </Box>
           </Container>

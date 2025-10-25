@@ -24,7 +24,6 @@ export const transformPartenaireToPayload = (
     payload.image = undefined;
   }
 
-  console.log("Payload transformPartenaireToPayload:", payload);
   return payload as PartenaireCreatePayload;
 };
 

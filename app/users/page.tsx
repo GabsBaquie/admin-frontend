@@ -1,4 +1,3 @@
-// app/users/page.tsx
 "use client";
 
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
@@ -19,7 +18,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: number;
@@ -33,6 +32,7 @@ const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -95,11 +95,13 @@ const Users: React.FC = () => {
             Gestion des Utilisateurs
           </Typography>
           <Box mb={3}>
-            <Link href="/users/create" passHref>
-              <Button variant="contained" color="primary">
-                Ajouter un Utilisateur
-              </Button>
-            </Link>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => router.push("/users/create")}
+            >
+              Ajouter un Utilisateur
+            </Button>
           </Box>
           {error && (
             <Box mb={2}>
@@ -129,16 +131,15 @@ const Users: React.FC = () => {
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Link href={`/users/edit/${user.id}`} passHref>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          size="small"
-                          className="mr-2"
-                        >
-                          Éditer
-                        </Button>
-                      </Link>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        className="mr-2"
+                        onClick={() => router.push(`/users/edit/${user.id}`)}
+                      >
+                        Éditer
+                      </Button>
                       <Button
                         variant="outlined"
                         color="secondary"

@@ -1,7 +1,6 @@
-// app/components/Navbar.tsx
-import React from "react";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 const Navbar: React.FC = () => {
   const router = useRouter();
