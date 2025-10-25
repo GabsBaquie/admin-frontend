@@ -1,19 +1,9 @@
-// app/types/Day.ts
-
-import { Concert } from "./Concert";
-
-export type Day = {
+export interface Day {
   id: number;
   title: string;
   date: string;
   image?: string;
-  concertIds: number[];
-  concerts?: Concert[];
-};
-
-export type DayCreatePayload = {
-  title: string;
-  date: string;
-  image?: string;
-  concertIds: number[];
-};
+  concerts?: Array<{ id: number; title: string; time: string }>;
+  created_at: string;
+  updated_at: string;
+}

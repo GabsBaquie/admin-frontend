@@ -3,7 +3,6 @@
 import { ConcertsRenderer, ImageRenderer } from "@/app/components/renderers";
 import { BaseContentManager } from "@/app/contents/common";
 import { useToast } from "@/app/context/ToastContext";
-import { DayCreateOrUpdatePayload } from "@/app/helpers/transformDayToPayload";
 import { Column, Field } from "@/app/types/content";
 import { Day } from "@/app/types/Day";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
@@ -83,7 +82,7 @@ const DaysManager: React.FC = () => {
   ];
 
   return (
-    <BaseContentManager<Day, DayCreateOrUpdatePayload>
+    <BaseContentManager<Day, DayFormData>
       contentType={contentType}
       columns={columns}
       fields={fields}

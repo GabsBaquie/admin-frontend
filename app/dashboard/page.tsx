@@ -14,6 +14,7 @@ import SecurityInfosManager from "@/app/contents/SecurityInfosManager";
 import UsersManager from "@/app/contents/UsersManager";
 import ImagesPage from "@/app/images/page";
 
+import Navbar from "@/app/components/Navbar";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Sidebar from "@/app/components/Sidebar";
 
@@ -45,29 +46,32 @@ const Dashboard: React.FC = () => {
 
   return (
     <ProtectedRoute>
-      <Box sx={{ display: "flex" }}>
-        <Sidebar
-          onSelect={setSelectedSection}
-          selectedSection={selectedSection}
-        />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <Container maxWidth="lg">
-            <Box mt={5} className="flex flex-col items-center">
-              <Typography variant="h4" gutterBottom>
-                Tableau de Bord Admin
-              </Typography>
-              <Box mt={3} display="flex" gap={2}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setSelectedSection("users")}
-                >
-                  Gestion des Utilisateurs
-                </Button>
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+        <Navbar />
+        <Box sx={{ display: "flex", flex: 1 }}>
+          <Sidebar
+            onSelect={setSelectedSection}
+            selectedSection={selectedSection}
+          />
+          <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: "auto" }}>
+            <Container maxWidth="lg">
+              <Box mt={2} className="flex flex-col items-center">
+                <Typography variant="h4" gutterBottom>
+                  Tableau de Bord Admin
+                </Typography>
+                <Box mt={3} display="flex" gap={2}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setSelectedSection("users")}
+                  >
+                    Gestion des Utilisateurs
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-          </Container>
-          <Box mt={8}>{renderSection()}</Box>
+            </Container>
+            <Box mt={4}>{renderSection()}</Box>
+          </Box>
         </Box>
       </Box>
     </ProtectedRoute>

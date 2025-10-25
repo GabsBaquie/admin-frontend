@@ -1,9 +1,7 @@
 // Export all main components
 export { default as ChangePassword } from "./ChangePassword";
-export { default as ClientLayout } from "./ClientLayout";
 export { default as DataTable } from "./DataTable";
 export { default as DeleteConfirmation } from "./DeleteConfirmation";
-export { default as ErrorBoundary } from "./ErrorBoundary";
 export { default as FormModal } from "./FormModal";
 export { default as Navbar } from "./Navbar";
 export { default as ProtectedRoute } from "./ProtectedRoute";

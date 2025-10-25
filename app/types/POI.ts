@@ -1,9 +1,12 @@
-export type POI = {
+export interface POI {
   id: number;
   title: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  category: string;
+  type: string;
+  latitude: string;
+  longitude: string;
+  description?: string;
+  category?: string;
   address?: string;
-};
+  created_at: string;
+  updated_at: string;
+}

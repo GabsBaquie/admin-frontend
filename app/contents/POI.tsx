@@ -1,15 +1,24 @@
+"use client";
+
 import { EmptyFieldRenderer } from "@/app/components/renderers";
 import { BaseContentManager } from "@/app/contents/common";
-import {
-  PoiPayload,
-  transformPoiToPayload,
-} from "@/app/helpers/transformPoiToPayload";
 import { Field } from "@/app/types/content";
 import { POI } from "@/app/types/POI";
 import React from "react";
 
+interface PoiPayload {
+  title: string;
+  type: string;
+  latitude: string;
+  longitude: string;
+  description?: string;
+  category?: string;
+  address?: string;
+}
+
 const POIsManager: React.FC = () => {
   const contentType = "pois";
+
   const columns = [
     { id: "title" as keyof POI, label: "Nom" },
     { id: "type" as keyof POI, label: "Type" },
@@ -31,6 +40,7 @@ const POIsManager: React.FC = () => {
       render: (row: POI) => <EmptyFieldRenderer value={row.address} />,
     },
   ];
+
   const fields: Field<PoiPayload>[] = [
     { name: "title", label: "Nom", required: true, type: "text" },
     { name: "type", label: "Type", required: true, type: "text" },
@@ -51,7 +61,6 @@ const POIsManager: React.FC = () => {
       contentType={contentType}
       columns={columns}
       fields={fields}
-      transformData={transformPoiToPayload}
     />
   );
 };

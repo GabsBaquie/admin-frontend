@@ -1,9 +1,12 @@
 "use client";
 
 import ChangePassword from "@/app/components/ChangePassword";
+import Navbar from "@/app/components/Navbar";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface UserData {
@@ -13,6 +16,7 @@ interface UserData {
 }
 
 const Profile: React.FC = () => {
+  const router = useRouter();
   const [userData, setUserData] = useState<UserData>({
     username: "",
     email: "",
@@ -61,43 +65,67 @@ const Profile: React.FC = () => {
 
   return (
     <ProtectedRoute allowedRoles={["admin", "user"]}>
-      <Container maxWidth="sm">
-        <Box mt={5} className="p-8 bg-white rounded shadow">
-          <Typography variant="h4" gutterBottom>
-            Mon Profil
-          </Typography>
-          {error && <Typography color="error">{error}</Typography>}
-          {success && <Typography color="primary">{success}</Typography>}
-
-          {/* Formulaire de mise à jour du profil */}
-          <form className="space-y-4" onSubmit={handleProfileUpdate}>
-            <TextField
-              label="Nom d'utilisateur"
-              name="username"
-              fullWidth
-              value={userData.username}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              label="Email"
-              name="email"
-              type="email"
-              fullWidth
-              value={userData.email}
-              onChange={handleChange}
-              required
-            />
-            <TextField label="Rôle" fullWidth value={userData.role} disabled />
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-              Mettre à jour le profil
+      <Box
+        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
+        <Navbar />
+        <Container maxWidth="sm">
+          <Box mt={3} display="flex" alignItems="center" gap={2}>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => router.push("/dashboard")}
+              variant="outlined"
+            >
+              Retour au Dashboard
             </Button>
-          </form>
+          </Box>
+          <Box mt={3} className="p-8 bg-white rounded shadow">
+            <Typography variant="h4" gutterBottom>
+              Mon Profil
+            </Typography>
+            {error && <Typography color="error">{error}</Typography>}
+            {success && <Typography color="primary">{success}</Typography>}
 
-          {/* Composant de changement de mot de passe */}
-          <ChangePassword />
-        </Box>
-      </Container>
+            {/* Formulaire de mise à jour du profil */}
+            <form className="space-y-4" onSubmit={handleProfileUpdate}>
+              <TextField
+                label="Nom d'utilisateur"
+                name="username"
+                fullWidth
+                value={userData.username}
+                onChange={handleChange}
+                required
+              />
+              <TextField
+                label="Email"
+                name="email"
+                type="email"
+                fullWidth
+                value={userData.email}
+                onChange={handleChange}
+                required
+              />
+              <TextField
+                label="Rôle"
+                fullWidth
+                value={userData.role}
+                disabled
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+              >
+                Mettre à jour le profil
+              </Button>
+            </form>
+
+            {/* Composant de changement de mot de passe */}
+            <ChangePassword />
+          </Box>
+        </Container>
+      </Box>
     </ProtectedRoute>
   );
 };

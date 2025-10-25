@@ -1,7 +1,14 @@
 "use client";
 
 import { API_BASE_URL } from "@/app/utils/api";
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -90,8 +97,19 @@ const ResetPassword: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           Réinitialiser votre mot de passe
         </Typography>
-        {message && <Typography color="primary">{message}</Typography>}
-        {error && <Typography color="error">{error}</Typography>}
+
+        {message && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {message}
+          </Alert>
+        )}
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <TextField
             label="Nouveau mot de passe"
@@ -101,6 +119,7 @@ const ResetPassword: React.FC = () => {
             onChange={(e) => setNewPassword(e.target.value)}
             required
             autoComplete="new-password"
+            disabled={!!message}
           />
           <TextField
             label="Confirmer le mot de passe"
@@ -110,16 +129,19 @@ const ResetPassword: React.FC = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             autoComplete="new-password"
+            disabled={!!message}
           />
           <Button
             type="submit"
             variant="contained"
             color="primary"
             fullWidth
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!message}
           >
             {isSubmitting
               ? "Réinitialisation..."
+              : message
+              ? "Mot de passe réinitialisé"
               : "Réinitialiser le mot de passe"}
           </Button>
         </form>
