@@ -1,7 +1,4 @@
-import { 
-  StatusRenderer, 
-  UrgenceRenderer 
-} from "@/app/components/ColumnRenderers";
+import { StatusRenderer, UrgencyRenderer } from "@/app/components/renderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { Field } from "@/app/types/content";
 import { SecurityInfo } from "@/app/types/SecurityInfo";
@@ -49,7 +46,7 @@ const SecurityInfosManager: React.FC = () => {
     {
       id: "urgence" as keyof SecurityInfo,
       label: "Urgence",
-      render: (row: SecurityInfo) => <UrgenceRenderer value={row.urgence} />,
+      render: (row: SecurityInfo) => <UrgencyRenderer value={row.urgence} />,
     },
     {
       id: "actif" as keyof SecurityInfo,

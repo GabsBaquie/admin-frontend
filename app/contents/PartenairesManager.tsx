@@ -1,8 +1,8 @@
-import { 
-  StatusRenderer, 
-  ImageRenderer, 
-  DateRenderer 
-} from "@/app/components/ColumnRenderers";
+import {
+  DateRenderer,
+  ImageRenderer,
+  StatusRenderer,
+} from "@/app/components/renderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { PartenairePayload } from "@/app/helpers/transformPartenaireToPayload";
 import { Partenaire } from "@/app/types/Partenaire";

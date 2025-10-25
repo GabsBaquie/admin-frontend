@@ -1,9 +1,6 @@
 "use client";
 
-import { 
-  ImageRenderer, 
-  ConcertsRenderer 
-} from "@/app/components/ColumnRenderers";
+import { ConcertsRenderer, ImageRenderer } from "@/app/components/renderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { useToast } from "@/app/context/ToastContext";
 import { DayCreateOrUpdatePayload } from "@/app/helpers/transformDayToPayload";

@@ -1,6 +1,6 @@
 "use client";
 
-import ImagePreview from "@/app/components/ImagePreview";
+import ImageDisplay from "@/app/components/common/ImageDisplay";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { useToast } from "@/app/context/ToastContext";
 import {
@@ -58,7 +58,7 @@ const ConcertsManager: React.FC = () => {
       id: "image",
       label: "Image",
       render: (row: Concert) => (
-        <ImagePreview
+        <ImageDisplay
           src={row.image}
           alt="Aperçu du concert"
           width={60}

@@ -3,7 +3,7 @@
 import DataTable from "@/app/components/DataTable";
 import DeleteConfirmation from "@/app/components/DeleteConfirmation";
 import FormModal from "@/app/components/FormModal";
-import Notification from "@/app/components/Notification";
+import Notification from "@/app/components/common/Notification";
 import { Column, Field } from "@/app/types/content";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
 import { uploadImage } from "@/app/utils/imageUpload";

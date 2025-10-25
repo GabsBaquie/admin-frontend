@@ -1,9 +1,9 @@
-import { 
-  ImportanceRenderer, 
-  StatusRenderer, 
-  ImageRenderer, 
-  DateRenderer 
-} from "@/app/components/ColumnRenderers";
+import {
+  DateRenderer,
+  ImageRenderer,
+  ImportanceRenderer,
+  StatusRenderer,
+} from "@/app/components/renderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import { ActualitePayload } from "@/app/helpers/transformActualiteToPayload";
 import { Actualite } from "@/app/types/Actualite";

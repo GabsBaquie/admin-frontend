@@ -4,39 +4,46 @@ import { Box, CircularProgress } from "@mui/material";
 import Image from "next/image";
 import React, { useState } from "react";
 
-interface ImagePreviewProps {
+interface ImageDisplayProps {
   src: string;
   alt: string;
   width?: number;
   height?: number;
   style?: React.CSSProperties;
   className?: string;
+  showPlaceholder?: boolean;
+  placeholderText?: string;
 }
 
-const ImagePreview: React.FC<ImagePreviewProps> = ({
+const ImageDisplay: React.FC<ImageDisplayProps> = ({
   src,
   alt,
   width = 60,
   height = 60,
   style,
   className,
+  showPlaceholder = true,
+  placeholderText = "Pas d'image",
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  // Construire l'URL complète si nécessaire
   const getImageUrl = (imageSrc: string) => {
     if (!imageSrc) return "";
 
-    // Si c'est déjà une URL complète (http, https, data), on la retourne telle quelle
+    // URLs complètes
     if (imageSrc.startsWith("http") || imageSrc.startsWith("data:")) {
       return imageSrc;
     }
 
-    // Sinon, on construit l'URL avec l'API base
+    // Corriger les URLs malformées
+    if (imageSrc.includes("https:/.") && !imageSrc.includes("https://")) {
+      return imageSrc.replace("https:/.", "https://");
+    }
+
+    // Construire l'URL avec l'API base
     const apiBaseUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-    // Nettoyer l'URL de base pour enlever /api si présent
+      process.env.NEXT_PUBLIC_API_URL || "https://api.nation-sounds.fr";
     const cleanBaseUrl = apiBaseUrl.replace("/api", "");
     const cleanPath = imageSrc.startsWith("/") ? imageSrc.slice(1) : imageSrc;
     return `${cleanBaseUrl}/${cleanPath}`;
@@ -45,6 +52,8 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
   const imageUrl = getImageUrl(src);
 
   if (!src || hasError) {
+    if (!showPlaceholder) return null;
+
     return (
       <Box
         sx={{
@@ -59,7 +68,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
         }}
       >
         <span style={{ fontSize: "12px", color: "#666", textAlign: "center" }}>
-          Pas d&apos;image
+          {placeholderText}
         </span>
       </Box>
     );
@@ -118,4 +127,4 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
   );
 };
 
-export default ImagePreview;
+export default ImageDisplay;

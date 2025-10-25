@@ -1,4 +1,4 @@
-import { EmptyFieldRenderer } from "@/app/components/ColumnRenderers";
+import { EmptyFieldRenderer } from "@/app/components/renderers";
 import ContentManager from "@/app/contents/genericT/ContentManager";
 import {
   PoiPayload,

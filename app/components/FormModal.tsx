@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import ImageServerManager from "./ImageServerManager";
+import ImageSelector from "./ImageManager/ImageSelector";
 
 interface FormModalProps<T> {
   open: boolean;
@@ -386,7 +386,7 @@ const FormModal = <T extends WithImage>({
       </Modal>
 
       {/* Gestionnaire d'images serveur */}
-      <ImageServerManager
+      <ImageSelector
         open={showImageManager}
         onClose={() => setShowImageManager(false)}
         onImageSelect={(imageUrl) => {
