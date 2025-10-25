@@ -70,6 +70,7 @@ const ImagesPage: React.FC = () => {
   };
 
   const handleDeleteImage = async (imageUrl: string) => {
+    if (typeof imageUrl !== "string") return;
     const filename = imageUrl.split("/").pop();
     if (!filename) return;
 
@@ -91,6 +92,7 @@ const ImagesPage: React.FC = () => {
   };
 
   const handleRenameImage = async (imageUrl: string) => {
+    if (typeof imageUrl !== "string") return;
     const filename = imageUrl.split("/").pop();
     if (!filename || !newName.trim()) return;
 
@@ -112,10 +114,9 @@ const ImagesPage: React.FC = () => {
   };
 
   const getImageUrl = (imagePath: string) => {
-    const apiBaseUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-    const assetsUrl = apiBaseUrl.replace("/api", "");
-    return `${assetsUrl}${imagePath}`;
+    // Les images sont stockées dans Supabase Storage
+    // L'URL retournée par Supabase est déjà complète
+    return imagePath;
   };
 
   // Gestion de l'upload d'image
@@ -280,14 +281,20 @@ const ImagesPage: React.FC = () => {
                     width="100%"
                   >
                     <Typography variant="caption" color="text.secondary">
-                      {imageUrl.split("/").pop()}
+                      {typeof imageUrl === "string"
+                        ? imageUrl.split("/").pop()
+                        : "Unknown"}
                     </Typography>
                     <Box>
                       <IconButton
                         size="small"
                         onClick={() => {
                           setEditingImage(imageUrl);
-                          setNewName(imageUrl.split("/").pop() || "");
+                          setNewName(
+                            typeof imageUrl === "string"
+                              ? imageUrl.split("/").pop() || ""
+                              : ""
+                          );
                         }}
                       >
                         <EditIcon />
