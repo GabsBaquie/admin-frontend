@@ -3,11 +3,10 @@ import {
   ImageRenderer,
   StatusRenderer,
 } from "@/app/components/renderers";
-import ContentManager from "@/app/contents/genericT/ContentManager";
+import { BaseContentManager } from "@/app/contents/common";
 import { PartenairePayload } from "@/app/helpers/transformPartenaireToPayload";
 import { Partenaire } from "@/app/types/Partenaire";
 import { Column, Field } from "@/app/types/content";
-import { Container } from "@mui/material";
 import React from "react";
 
 const PartenairesManager: React.FC = () => {
@@ -77,13 +76,11 @@ const PartenairesManager: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="lg">
-      <ContentManager<Partenaire, PartenairePayload>
-        contentType={contentType}
-        columns={columns}
-        fields={fields}
-      />
-    </Container>
+    <BaseContentManager<Partenaire, PartenairePayload>
+      contentType={contentType}
+      columns={columns}
+      fields={fields}
+    />
   );
 };
 

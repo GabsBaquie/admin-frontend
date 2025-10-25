@@ -1,5 +1,5 @@
 import { StatusRenderer, UrgencyRenderer } from "@/app/components/renderers";
-import ContentManager from "@/app/contents/genericT/ContentManager";
+import { BaseContentManager } from "@/app/contents/common";
 import { Field } from "@/app/types/content";
 import { SecurityInfo } from "@/app/types/SecurityInfo";
 import React from "react";
@@ -95,7 +95,7 @@ const SecurityInfosManager: React.FC = () => {
   ];
 
   return (
-    <ContentManager<SecurityInfo, SecurityInfoPayload>
+    <BaseContentManager<SecurityInfo, SecurityInfoPayload>
       contentType={contentType}
       columns={columns}
       fields={fields}

@@ -16,6 +16,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import ImageSelector from "./ImageManager/ImageSelector";
 
@@ -76,6 +77,12 @@ const FormModal = <T extends WithImage>({
       }
     }
   }, [open, initialData, fields]);
+
+  useEffect(() => {
+    if (formData.image && formData.image !== imagePreview) {
+      setImagePreview(formData.image);
+    }
+  }, [formData.image, imagePreview]);
 
   const validateField = (
     field: Field<T>,
@@ -220,8 +227,10 @@ const FormModal = <T extends WithImage>({
           </Button>
           {imagePreview && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography variant="body2" color="primary" sx={{ mb: 1 }}>
+                ✓ Image sélectionnée
+              </Typography>
               {(() => {
-                console.log("Rendu imagePreview:", imagePreview);
                 let previewUrl = imagePreview;
                 if (
                   typeof previewUrl === "string" &&
@@ -239,12 +248,13 @@ const FormModal = <T extends WithImage>({
                     : previewUrl;
                   previewUrl = `${assetsUrl}/${cleanPath}`;
                 }
-                console.log("URL finale pour preview:", previewUrl);
                 return (
-                  <img
-                    key={previewUrl} // Force le re-rendu avec une clé unique
+                  <Image
+                    key={previewUrl}
                     src={previewUrl}
                     alt="Preview"
+                    width={300}
+                    height={200}
                     style={{
                       maxWidth: "100%",
                       maxHeight: "200px",
@@ -393,6 +403,7 @@ const FormModal = <T extends WithImage>({
           setImagePreview(imageUrl);
           setFormData({ ...formData, image: imageUrl });
         }}
+        currentImageUrl={formData.image}
       />
     </>
   );

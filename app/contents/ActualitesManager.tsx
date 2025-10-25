@@ -4,11 +4,10 @@ import {
   ImportanceRenderer,
   StatusRenderer,
 } from "@/app/components/renderers";
-import ContentManager from "@/app/contents/genericT/ContentManager";
+import { BaseContentManager } from "@/app/contents/common";
 import { ActualitePayload } from "@/app/helpers/transformActualiteToPayload";
 import { Actualite } from "@/app/types/Actualite";
 import { Column, Field } from "@/app/types/content";
-import { Container } from "@mui/material";
 import React from "react";
 
 const ActualitesManager: React.FC = () => {
@@ -86,13 +85,11 @@ const ActualitesManager: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="lg">
-      <ContentManager<Actualite, ActualitePayload>
-        contentType={contentType}
-        columns={columns}
-        fields={fields}
-      />
-    </Container>
+    <BaseContentManager<Actualite, ActualitePayload>
+      contentType={contentType}
+      columns={columns}
+      fields={fields}
+    />
   );
 };
 

@@ -1,23 +1,17 @@
 "use client";
 
+import { deleteServerImage } from "@/app/utils/imageServerApi";
 import {
-  deleteServerImage,
-  renameServerImage,
-} from "@/app/utils/imageServerApi";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
+  CheckCircle as CheckIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 import {
   Box,
-  Button,
   Card,
   CardActions,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Grid,
   IconButton,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
@@ -27,21 +21,19 @@ interface ImageGridProps {
   images: string[];
   loading: boolean;
   onImageDeleted: (imageUrl: string) => void;
-  onImageRenamed: (oldUrl: string, newUrl: string) => void;
   onError: (error: string) => void;
   onImageSelect?: (imageUrl: string) => void;
+  selectedImage?: string | null;
 }
 
 const ImageGrid: React.FC<ImageGridProps> = ({
   images,
   loading,
   onImageDeleted,
-  onImageRenamed,
   onError,
   onImageSelect,
+  selectedImage,
 }) => {
-  const [editingImage, setEditingImage] = useState<string | null>(null);
-  const [newName, setNewName] = useState("");
   const [deletingImage, setDeletingImage] = useState<string | null>(null);
 
   const handleDeleteImage = async (imageUrl: string) => {
@@ -57,21 +49,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({
       onError("Erreur lors de la suppression de l'image");
     } finally {
       setDeletingImage(null);
-    }
-  };
-
-  const handleRenameImage = async (imageUrl: string) => {
-    if (typeof imageUrl !== "string") return;
-    const filename = imageUrl.split("/").pop();
-    if (!filename || !newName.trim()) return;
-
-    try {
-      const result = await renameServerImage(filename, newName.trim());
-      onImageRenamed(imageUrl, result.newPath);
-      setEditingImage(null);
-      setNewName("");
-    } catch {
-      onError("Erreur lors du renommage de l'image");
     }
   };
 
@@ -92,16 +69,37 @@ const ImageGrid: React.FC<ImageGridProps> = ({
               sx={{
                 cursor: onImageSelect ? "pointer" : "default",
                 "&:hover": onImageSelect ? { boxShadow: 3 } : {},
+                border:
+                  selectedImage === imageUrl
+                    ? "3px solid #1976d2"
+                    : "1px solid #e0e0e0",
+                position: "relative",
               }}
               onClick={() => onImageSelect?.(imageUrl)}
             >
-              <ImageDisplay
-                src={imageUrl}
-                alt={`Image ${index + 1}`}
-                width={200}
-                height={200}
-                style={{ objectFit: "cover" }}
-              />
+              <Box sx={{ position: "relative" }}>
+                <ImageDisplay
+                  src={imageUrl}
+                  alt={`Image ${index + 1}`}
+                  width={200}
+                  height={200}
+                  style={{ objectFit: "cover" }}
+                />
+                {selectedImage === imageUrl && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      backgroundColor: "#1976d2",
+                      borderRadius: "50%",
+                      p: 0.5,
+                    }}
+                  >
+                    <CheckIcon sx={{ color: "white", fontSize: 20 }} />
+                  </Box>
+                )}
+              </Box>
               <CardActions>
                 <Box display="flex" justifyContent="space-between" width="100%">
                   <Typography variant="caption" color="text.secondary">
@@ -110,19 +108,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({
                       : "Unknown"}
                   </Typography>
                   <Box>
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setEditingImage(imageUrl);
-                        setNewName(
-                          typeof imageUrl === "string"
-                            ? imageUrl.split("/").pop() || ""
-                            : ""
-                        );
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
                     <IconButton
                       size="small"
                       onClick={() => handleDeleteImage(imageUrl)}
@@ -138,31 +123,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({
           </Grid>
         ))}
       </Grid>
-
-      {/* Dialog de renommage */}
-      <Dialog open={!!editingImage} onClose={() => setEditingImage(null)}>
-        <DialogTitle>Renommer l&apos;image</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Nouveau nom"
-            fullWidth
-            variant="outlined"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditingImage(null)}>Annuler</Button>
-          <Button
-            onClick={() => editingImage && handleRenameImage(editingImage)}
-            disabled={!newName.trim()}
-          >
-            Renommer
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };

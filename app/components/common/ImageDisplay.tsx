@@ -83,6 +83,9 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({
         borderRadius: 1,
         overflow: "hidden",
         backgroundColor: "#f5f5f5",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         ...style,
       }}
       className={className}
@@ -115,6 +118,8 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({
           objectFit: "cover",
           opacity: isLoading ? 0 : 1,
           transition: "opacity 0.3s ease",
+          width: "100%",
+          height: "100%",
         }}
         onLoad={() => setIsLoading(false)}
         onError={() => {

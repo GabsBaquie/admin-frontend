@@ -1,7 +1,7 @@
 "use client";
 
 import ImageDisplay from "@/app/components/common/ImageDisplay";
-import ContentManager from "@/app/contents/genericT/ContentManager";
+import { BaseContentManager } from "@/app/contents/common";
 import { useToast } from "@/app/context/ToastContext";
 import {
   ConcertPayload,
@@ -10,7 +10,6 @@ import {
 import { Concert } from "@/app/types/Concert";
 import { Column, Field } from "@/app/types/content";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
-import { Container } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 interface Day {
@@ -102,14 +101,12 @@ const ConcertsManager: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="lg">
-      <ContentManager<Concert, ConcertPayload>
-        contentType={contentType}
-        columns={columns}
-        fields={fields}
-        transformData={transformConcertToPayload}
-      />
-    </Container>
+    <BaseContentManager<Concert, ConcertPayload>
+      contentType={contentType}
+      columns={columns}
+      fields={fields}
+      transformData={transformConcertToPayload}
+    />
   );
 };
 

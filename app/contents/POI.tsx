@@ -1,5 +1,5 @@
 import { EmptyFieldRenderer } from "@/app/components/renderers";
-import ContentManager from "@/app/contents/genericT/ContentManager";
+import { BaseContentManager } from "@/app/contents/common";
 import {
   PoiPayload,
   transformPoiToPayload,
@@ -47,7 +47,7 @@ const POIsManager: React.FC = () => {
   ];
 
   return (
-    <ContentManager<POI, PoiPayload>
+    <BaseContentManager<POI, PoiPayload>
       contentType={contentType}
       columns={columns}
       fields={fields}

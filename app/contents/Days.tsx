@@ -1,13 +1,12 @@
 "use client";
 
 import { ConcertsRenderer, ImageRenderer } from "@/app/components/renderers";
-import ContentManager from "@/app/contents/genericT/ContentManager";
+import { BaseContentManager } from "@/app/contents/common";
 import { useToast } from "@/app/context/ToastContext";
 import { DayCreateOrUpdatePayload } from "@/app/helpers/transformDayToPayload";
 import { Column, Field } from "@/app/types/content";
 import { Day } from "@/app/types/Day";
 import { fetchWithAuth } from "@/app/utils/fetchWithAuth";
-import { Container } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 interface Concert {
@@ -84,13 +83,11 @@ const DaysManager: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="lg">
-      <ContentManager<Day, DayCreateOrUpdatePayload>
-        contentType={contentType}
-        columns={columns}
-        fields={fields}
-      />
-    </Container>
+    <BaseContentManager<Day, DayCreateOrUpdatePayload>
+      contentType={contentType}
+      columns={columns}
+      fields={fields}
+    />
   );
 };
 
